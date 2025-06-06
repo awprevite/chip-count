@@ -57,12 +57,20 @@ struct ContentView: View {
                 
                 VStack {
                     
-                    Text("Net Earnings")
+                    Text("Balance")
                         .modifier(SmallTextStyle(color: .white))
                     
-                    Text("$\(cumulativeSessions.last?.runningMoney ?? 0, specifier: "%.2f")")
-                        .modifier(LargeTextStyle(color: .green))
-                        .padding()
+                    if let last = cumulativeSessions.last {
+                        Text(String(format: "$%.2f", last.runningMoney))
+                            .modifier(LargeTextStyle(color: last.runningMoney == 0 ? .white : (last.runningMoney > 0 ? .green : .red)))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.3)
+                            .padding()
+                    } else {
+                        Text("$0.00")
+                            .modifier(LargeTextStyle(color: .white))
+                            .padding()
+                    }
                     
                     Divider()
                         .frame(width: 350)
@@ -130,7 +138,7 @@ struct ContentView: View {
                             Text(String(format: "$%.2f", averageWinnings))
                                 .modifier(LargeTextStyle(color: .white))
                         } else {
-                            Text("0:00")
+                            Text("$0.00")
                                 .modifier(LargeTextStyle(color: .white))
                         }
                         

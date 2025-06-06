@@ -16,11 +16,18 @@ extension View {
 struct InputView: View {
     
     @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.dismiss) private var dismiss
     
     @State private var date: Date = Date()
     @State private var buyIn: String = ""
     @State private var winnings: String = ""
     @State private var duration: String = ""
+    
+    @FocusState private var buyInFocused: Bool
+    @FocusState private var endTotalFocused: Bool
+    
+    @State private var showAlert = false
+    @State private var alertMessage = ""
     
     @State private var hours = 0
     @State private var minutes = 0
@@ -72,12 +79,18 @@ struct InputView: View {
                             
                             TextField("", text: $buyIn)
                                 .keyboardType(.decimalPad)
+                                .focused($buyInFocused)
+                                .onChange(of: buyIn) {
+                                    if buyIn.count > 8 {
+                                        buyIn = String(buyIn.prefix(8))
+                                    }
+                                }
                                 .textFieldStyle(PrimaryTextFieldStyle())
                         }
                         .background(Color.black)
                         
                         
-                        Text("Winnings")
+                        Text("End Total")
                             .modifier(SmallTextStyle(color: .white))
                             .frame(maxWidth: 225, alignment: .leading)
                             .padding(.top, 20)
@@ -89,6 +102,12 @@ struct InputView: View {
                             
                             TextField("", text: $winnings)
                                 .keyboardType(.decimalPad)
+                                .focused($endTotalFocused)
+                                .onChange(of: winnings) {
+                                    if winnings.count > 8 {
+                                        winnings = String(winnings.prefix(8))
+                                    }
+                                }
                                 .textFieldStyle(PrimaryTextFieldStyle())
                         }
                         .background(Color.black)
@@ -108,6 +127,17 @@ struct InputView: View {
                         Spacer()
                         
                     }
+                    .toolbar {
+                        if buyInFocused || endTotalFocused {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                Button("Done") {
+                                    buyInFocused = false
+                                    endTotalFocused = false
+                                }
+                            }
+                        }
+                    }
                     
                     Spacer()
                     Spacer()
@@ -126,16 +156,28 @@ struct InputView: View {
         .onTapGesture {
             hideKeyboard()
         }
+        .alert("Error", isPresented: $showAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(alertMessage)
+        }
     }
     
     private func saveSession() {
         guard let buyInValue = Double(buyIn),
               let winningsValue = Double(winnings) else {
-            print("Invalid number inputs")
+            alertMessage = "Please enter amounts for Buy In and End Total"
+            showAlert = true
             return
         }
         
         let totalDuration = Int16(hours * 60 + minutes)
+        
+        if totalDuration == 0 {
+            alertMessage = "Please enter a valid Duration time"
+            showAlert = true
+            return
+        }
         
         let newSession = Session(context: viewContext)
         newSession.date = date
@@ -151,8 +193,12 @@ struct InputView: View {
             winnings = ""
             hours = 0
             minutes = 0
+            
+            dismiss()
+            
         } catch {
-            print("Failed to save session: \(error.localizedDescription)")
+            alertMessage = "Failed to save sesson: \(error.localizedDescription)"
+            showAlert = true
         }
         
     }

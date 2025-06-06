@@ -44,6 +44,9 @@ struct HistoryView: View {
         }
     }
     
+    @State private var showAlert = false
+    @State private var sessionToDelete: SessionData? = nil
+    
     var body: some View {
         
         ZStack {
@@ -70,7 +73,8 @@ struct HistoryView: View {
                     
                     Spacer()
                     
-                    TableView(sessions: sessions, viewContext: viewContext)
+                    TableView(showAlert: $showAlert, sessionToDelete: $sessionToDelete, sessions: sessions, viewContext: viewContext)
+                        .padding()
                     
                     Spacer()
                     
@@ -81,39 +85,60 @@ struct HistoryView: View {
 }
 
 struct GraphView: View {
-    
     let sessions: [SessionData]
-    
-    var total: Double = 0
-    
-    var cumulativeSessions: [SessionWithTotal] {
-        var total: Double = 0
-        
-        return sessions.map { session in
-            total += session.winnings
-            return SessionWithTotal(session: session, runningTotal: total)
+
+    var values: [Double] {
+        var result: [Double] = []
+        for session in sessions {
+            let lastTotal = result.last ?? 0.0
+            result.append(lastTotal + session.winnings)
         }
+        return result
+    }
+
+    var dates: [Date] {
+        var result: [Date] = []
+        for session in sessions {
+            result.append(session.date)
+        }
+        return result
     }
     
-    
     var body: some View {
-        Chart(cumulativeSessions) { entry in
-                        
-            LineMark(
-                x: .value("Date", entry.session.date),
-                y: .value("Net", entry.runningTotal)
-            )
-            .foregroundStyle(entry.session.winnings >= 0 ? .green : .red)
-
+        Chart {
+            ForEach(Array(zip(values.indices, zip(dates, values))), id: \.0) { index, pair in
+                let (date, value) = pair
+                PointMark(
+                    x: .value("Date", date),
+                    y: .value("Total", value)
+                )
+                .foregroundStyle(.white)
+                if index > 0 {
+                    let prevValue = values[index - 1]
+                    LineMark(
+                        x: .value("Date", dates[index - 1]),
+                        y: .value("Total", prevValue)
+                    )
+                    .foregroundStyle(.white)
+                    LineMark(
+                        x: .value("Date", date),
+                        y: .value("Total", value)
+                    )
+                    .foregroundStyle(.white)
+                }
+            }
         }
         .chartXAxis {
-            AxisMarks(preset: .aligned, values: .automatic) { value in
-                AxisValueLabel(format: .dateTime.month(.abbreviated), centered: true)
+            AxisMarks(values: .automatic) { value in
+                AxisGridLine()
+                AxisTick()
+                AxisValueLabel()
                     .foregroundStyle(.white)
             }
         }
+        .chartXScale(range: .plotDimension(padding: 10))
         .chartYAxis {
-            AxisMarks() {
+            AxisMarks{
                 AxisGridLine()
                 AxisTick()
                 AxisValueLabel()
@@ -127,8 +152,18 @@ struct GraphView: View {
 
 struct TableView: View {
     
+    @Binding var showAlert: Bool
+    @Binding var sessionToDelete: SessionData?
+    
     let sessions: [SessionData]
     let viewContext: NSManagedObjectContext
+    
+    let formatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "MMM d, yyyy"
+        return f
+    }()
+
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -138,31 +173,33 @@ struct TableView: View {
                     .modifier(SmallTextStyle(color: .white))
                 
                 Spacer()
+                Spacer()
                 
                 Text("Net")
                     .modifier(SmallTextStyle(color: .white))
                 
                 Spacer()
                 
-                Text ("Remove")
-                    .modifier(SmallTextStyle(color: .white))
-                
             }
             ForEach(sessions) { session in
                 HStack {
-                    Text(session.date, style: .date)
+                    Text(formatter.string(from: session.date))
                         .foregroundColor(.white)
+                        .lineLimit(1)
                         .frame(width: 100, alignment: .leading)
                     
                     Spacer()
 
                     Text(String(format: "$%.2f", session.winnings))
-                        .foregroundColor(session.winnings >= 0 ? .green : .red)
+                        .foregroundColor(session.winnings > 0 ? .green : (session.winnings == 0 ? .white : .red))
                         .frame(width: 100, alignment: .trailing)
                     
                     Spacer()
                     
-                    Button(action: {deleteSession(session)}) {
+                    Button(action: {
+                        sessionToDelete = session
+                        showAlert = true
+                    }) {
                         Image(systemName: "trash")
                             .foregroundColor(.red)
                     }
@@ -176,6 +213,13 @@ struct TableView: View {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.white, lineWidth:2)
         )
+        .alert("Delete Session? This cannot be undone", isPresented: $showAlert, presenting: sessionToDelete) { session in
+            Button("Delete", role: .destructive) {
+                deleteSession(session)
+            }
+            Button("Back", role: .cancel) {}
+        } message: { _ in}
+
     }
     
     private func deleteSession(_ session: SessionData) {
@@ -185,7 +229,7 @@ struct TableView: View {
         do {
             try viewContext.save()
         } catch {
-            print("Failed to delete session: \(error.localizedDescription)")
+            print("Failed to delete")
         }
     }
 }
