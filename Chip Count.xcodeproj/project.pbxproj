@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		12D8BFD42DF3358A00FAB234 /* Session+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D8BFD22DF3358A00FAB234 /* Session+CoreDataClass.swift */; };
+		12D8BFD52DF3358A00FAB234 /* Session+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D8BFD32DF3358A00FAB234 /* Session+CoreDataProperties.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		12D8BF452DF1FB4000FAB234 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +32,8 @@
 		12D8BF342DF1FB3000FAB234 /* Chip Count.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Chip Count.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		12D8BF442DF1FB4000FAB234 /* Chip CountTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Chip CountTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		12D8BF4E2DF1FB4000FAB234 /* Chip CountUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Chip CountUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		12D8BFD22DF3358A00FAB234 /* Session+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Session+CoreDataClass.swift"; path = "Chip Count/Models/Session+CoreDataClass.swift"; sourceTree = "<group>"; };
+		12D8BFD32DF3358A00FAB234 /* Session+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Session+CoreDataProperties.swift"; path = "Chip Count/Models/Session+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,6 +82,8 @@
 		12D8BF2B2DF1FB3000FAB234 = {
 			isa = PBXGroup;
 			children = (
+				12D8BFD22DF3358A00FAB234 /* Session+CoreDataClass.swift */,
+				12D8BFD32DF3358A00FAB234 /* Session+CoreDataProperties.swift */,
 				12D8BF362DF1FB3000FAB234 /* Chip Count */,
 				12D8BF472DF1FB4000FAB234 /* Chip CountTests */,
 				12D8BF512DF1FB4000FAB234 /* Chip CountUITests */,
@@ -236,6 +245,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				12D8BFD42DF3358A00FAB234 /* Session+CoreDataClass.swift in Sources */,
+				12D8BFD52DF3358A00FAB234 /* Session+CoreDataProperties.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
