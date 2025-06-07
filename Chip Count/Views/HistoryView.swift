@@ -9,6 +9,7 @@ import SwiftUI
 import Charts
 import CoreData
 
+// Holds all info of a session
 struct SessionData: Identifiable {
     let id: NSManagedObjectID
     let date: Date
@@ -17,6 +18,7 @@ struct SessionData: Identifiable {
     let duration: Int16
 }
 
+// Holds a single session and the cumulative profit of multiple sessions
 struct SessionWithTotal: Identifiable {
     let id = UUID()
     let session: SessionData
@@ -85,6 +87,7 @@ struct HistoryView: View {
 }
 
 struct GraphView: View {
+    
     let sessions: [SessionData]
 
     var values: [Double] {
@@ -105,7 +108,9 @@ struct GraphView: View {
     }
     
     var body: some View {
+        
         Chart {
+            
             ForEach(Array(zip(values.indices, zip(dates, values))), id: \.0) { index, pair in
                 let (date, value) = pair
                 PointMark(
@@ -164,11 +169,12 @@ struct TableView: View {
         return f
     }()
 
-
     var body: some View {
+        
         VStack(alignment: .leading) {
 
             HStack {
+                
                 Text("Date")
                     .modifier(SmallTextStyle(color: .white))
                 
@@ -181,6 +187,7 @@ struct TableView: View {
                 Spacer()
                 
             }
+            
             ForEach(sessions) { session in
                 HStack {
                     Text(formatter.string(from: session.date))
@@ -223,13 +230,14 @@ struct TableView: View {
     }
     
     private func deleteSession(_ session: SessionData) {
+        
         let object = viewContext.object(with: session.id)
         viewContext.delete(object)
         
         do {
             try viewContext.save()
         } catch {
-            print("Failed to delete")
+            //print("Failed to delete session")
         }
     }
 }

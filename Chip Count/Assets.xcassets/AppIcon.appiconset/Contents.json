@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Frame 1 (1) copy 3.png",
+      "filename" : "IconLight.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Frame 1 (1) copy 2.png",
+      "filename" : "IconDark.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

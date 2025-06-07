@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+// Holds a single session and the cumulative profit and duration of multiple sessions
+// Uses SessionData from HistoryView
 struct SessionWithAllTotals: Identifiable {
     let id = UUID()
     let session: SessionData
@@ -48,129 +50,135 @@ struct ContentView: View {
     
     var body: some View {
         
-        NavigationStack{
+        GeometryReader { geometry in
             
-            ZStack {
+            NavigationStack{
                 
-                Color.black
-                    .ignoresSafeArea()
-                
-                VStack {
+                ZStack {
                     
-                    Text("Balance")
-                        .modifier(SmallTextStyle(color: .white))
+                    Color.black
+                        .ignoresSafeArea()
                     
-                    if let last = cumulativeSessions.last {
-                        Text(String(format: "$%.2f", last.runningMoney))
-                            .modifier(LargeTextStyle(color: last.runningMoney == 0 ? .white : (last.runningMoney > 0 ? .green : .red)))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.3)
-                            .padding()
-                    } else {
-                        Text("$0.00")
-                            .modifier(LargeTextStyle(color: .white))
-                            .padding()
-                    }
-                    
-                    Divider()
-                        .frame(width: 350)
-                        .frame(height: 2)
-                        .background(Color.white)
-                        .padding(.vertical, 8)
-                    
-                    VStack(alignment: .leading) {
+                    VStack {
                         
-                        Text("Total Sessions")
-                            .modifier(SmallTextStyle(color: .white))
+                        Spacer()
                         
-                        Text("\(cumulativeSessions.count)")
-                            .modifier(LargeTextStyle(color: .white))
-                        
-                        Text("Time Played")
+                        Text("Net Profit")
                             .modifier(SmallTextStyle(color: .white))
                         
                         if let last = cumulativeSessions.last {
-                            Text(String(format: "%d:%02d", last.runningTime / 60, last.runningTime % 60))
-                                .modifier(LargeTextStyle(color: .white))
-                        } else {
-                            Text("0:00")
-                                .modifier(LargeTextStyle(color: .white))
-                        }
-                        
-                        Text("Hourly Rate")
-                            .modifier(SmallTextStyle(color: .white))
-                        
-                        if let last = cumulativeSessions.last {
-                            let hours = Double(last.runningTime) / 60.0
-                            let hourlyRate = last.runningMoney / hours
-                            Text(String(format: "$%.2f", hourlyRate))
-                                .modifier(LargeTextStyle(color: .white))
+                            Text(String(format: "$%.2f", last.runningMoney))
+                                .modifier(LargeTextStyle(color: last.runningMoney == 0 ? .white : (last.runningMoney > 0 ? .green : .red)))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.3)
+                                .padding()
                         } else {
                             Text("$0.00")
                                 .modifier(LargeTextStyle(color: .white))
+                                .padding()
                         }
                         
-                        Text("Average Duration")
-                            .modifier(SmallTextStyle(color: .white))
+                        Divider()
+                            .frame(width: 350)
+                            .frame(height: 2)
+                            .background(Color.white)
+                            .padding(.vertical, 8)
                         
-                        if let last = cumulativeSessions.last {
-                            let count = cumulativeSessions.count
-                            let totalMinutes = Int(last.runningTime)
-                            let averageDurationMinutes = totalMinutes / count
-                            let hours = averageDurationMinutes / 60
-                            let minutes = averageDurationMinutes % 60
+                        VStack(alignment: .leading) {
                             
-                            Text(String(format: "%d:%02d", hours, minutes))
-                                .modifier(LargeTextStyle(color: .white))
-                        } else {
-                            Text("0:00")
-                                .modifier(LargeTextStyle(color: .white))
-                        }
-                        
-                        Text("Average Earnings")
-                            .modifier(SmallTextStyle(color: .white))
-                        
-                        if let last = cumulativeSessions.last {
-                            let count = cumulativeSessions.count
-                            let totalWinnings = last.runningMoney
-                            let averageWinnings = totalWinnings / Double(count)
+                            Text("Total Sessions")
+                                .modifier(SmallTextStyle(color: .white))
                             
-                            Text(String(format: "$%.2f", averageWinnings))
+                            Text("\(cumulativeSessions.count)")
                                 .modifier(LargeTextStyle(color: .white))
-                        } else {
-                            Text("$0.00")
-                                .modifier(LargeTextStyle(color: .white))
+                            
+                            Text("Time Played")
+                                .modifier(SmallTextStyle(color: .white))
+                            
+                            if let last = cumulativeSessions.last {
+                                Text(String(format: "%d:%02d", last.runningTime / 60, last.runningTime % 60))
+                                    .modifier(LargeTextStyle(color: .white))
+                            } else {
+                                Text("0:00")
+                                    .modifier(LargeTextStyle(color: .white))
+                            }
+                            
+                            Text("Hourly Rate")
+                                .modifier(SmallTextStyle(color: .white))
+                            
+                            if let last = cumulativeSessions.last {
+                                let hours = Double(last.runningTime) / 60.0
+                                let hourlyRate = last.runningMoney / hours
+                                Text(String(format: "$%.2f", hourlyRate))
+                                    .modifier(LargeTextStyle(color: .white))
+                            } else {
+                                Text("$0.00")
+                                    .modifier(LargeTextStyle(color: .white))
+                            }
+                            
+                            Text("Average Duration")
+                                .modifier(SmallTextStyle(color: .white))
+                            
+                            if let last = cumulativeSessions.last {
+                                let count = cumulativeSessions.count
+                                let totalMinutes = Int(last.runningTime)
+                                let averageDurationMinutes = totalMinutes / count
+                                let hours = averageDurationMinutes / 60
+                                let minutes = averageDurationMinutes % 60
+                                
+                                Text(String(format: "%d:%02d", hours, minutes))
+                                    .modifier(LargeTextStyle(color: .white))
+                            } else {
+                                Text("0:00")
+                                    .modifier(LargeTextStyle(color: .white))
+                            }
+                            
+                            Text("Average Profit")
+                                .modifier(SmallTextStyle(color: .white))
+                            
+                            if let last = cumulativeSessions.last {
+                                let count = cumulativeSessions.count
+                                let totalWinnings = last.runningMoney
+                                let averageWinnings = totalWinnings / Double(count)
+                                
+                                Text(String(format: "$%.2f", averageWinnings))
+                                    .modifier(LargeTextStyle(color: .white))
+                            } else {
+                                Text("$0.00")
+                                    .modifier(LargeTextStyle(color: .white))
+                            }
+                            
                         }
+                        .frame(maxWidth: 325, alignment: .leading)
+                        
+                        Spacer()
+                        
+                        Divider()
+                            .frame(width: 350)
+                            .frame(height: 2)
+                            .background(Color.white)
+                            .padding(.vertical, 8)
+                        
+                        Spacer()
+                        
+                        NavigationLink(destination: InputView()){
+                            Text("New Session")
+                        }
+                        .buttonStyle(PrimaryButtonStyle())
+                        
+                        Spacer()
+                        
+                        NavigationLink(destination: HistoryView()){
+                            Text("View History")
+                        }
+                        .buttonStyle(PrimaryButtonStyle())
+                        
+                        Spacer()
                         
                     }
-                    .frame(maxWidth: 325, alignment: .leading)
-                    
-                    Spacer()
-                    
-                    Divider()
-                        .frame(width: 350)
-                        .frame(height: 2)
-                        .background(Color.white)
-                        .padding(.vertical, 8)
-                    
-                    Spacer()
-                    
-                    NavigationLink(destination: InputView()){
-                        Text("New Session")
-                    }
-                    .buttonStyle(PrimaryButtonStyle())
-                    
-                    Spacer()
-                    
-                    NavigationLink(destination: HistoryView()){
-                        Text("View History")
-                    }
-                    .buttonStyle(PrimaryButtonStyle())
-                    
-                    Spacer()
-                    
                 }
             }
+            .minimumScaleFactor(0.6)
         }
     }
 }

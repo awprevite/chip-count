@@ -68,7 +68,7 @@ struct InputView: View {
                                     .stroke(Color.white, lineWidth:2)
                             )
                         
-                        Text("Buy In")
+                        Text("Buy In Total")
                             .modifier(SmallTextStyle(color: .white))
                             .frame(maxWidth: 225, alignment: .leading)
                             .padding(.top, 20)
@@ -164,9 +164,10 @@ struct InputView: View {
     }
     
     private func saveSession() {
+        
         guard let buyInValue = Double(buyIn),
               let winningsValue = Double(winnings) else {
-            alertMessage = "Please enter amounts for Buy In and End Total"
+            alertMessage = "Please enter valid amounts for Buy In Total and End Total"
             showAlert = true
             return
         }
@@ -187,7 +188,6 @@ struct InputView: View {
         
         do {
             try viewContext.save()
-            print("Session saved")
             
             buyIn = ""
             winnings = ""
@@ -205,12 +205,14 @@ struct InputView: View {
 }
 
 struct DurationPicker: View {
+    
     @Binding var hours: Int
     @Binding var minutes: Int
     
     let allMinutes = Array(stride(from: 0, through: 45, by: 15))
     
     var body: some View {
+        
         HStack {
         
             Picker("Hours", selection: $hours) {

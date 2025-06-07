@@ -6,11 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		12D8BFD42DF3358A00FAB234 /* Session+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D8BFD22DF3358A00FAB234 /* Session+CoreDataClass.swift */; };
-		12D8BFD52DF3358A00FAB234 /* Session+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D8BFD32DF3358A00FAB234 /* Session+CoreDataProperties.swift */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
 		12D8BF452DF1FB4000FAB234 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -32,13 +27,24 @@
 		12D8BF342DF1FB3000FAB234 /* Chip Count.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Chip Count.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		12D8BF442DF1FB4000FAB234 /* Chip CountTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Chip CountTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		12D8BF4E2DF1FB4000FAB234 /* Chip CountUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Chip CountUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		12D8BFD22DF3358A00FAB234 /* Session+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Session+CoreDataClass.swift"; path = "Chip Count/Models/Session+CoreDataClass.swift"; sourceTree = "<group>"; };
-		12D8BFD32DF3358A00FAB234 /* Session+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Session+CoreDataProperties.swift"; path = "Chip Count/Models/Session+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		1248BB662DF4BBA900B724F0 /* Exceptions for "Chip Count" folder in "Chip Count" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 12D8BF332DF1FB3000FAB234 /* Chip Count */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		12D8BF362DF1FB3000FAB234 /* Chip Count */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1248BB662DF4BBA900B724F0 /* Exceptions for "Chip Count" folder in "Chip Count" target */,
+			);
 			path = "Chip Count";
 			sourceTree = "<group>";
 		};
@@ -82,8 +88,6 @@
 		12D8BF2B2DF1FB3000FAB234 = {
 			isa = PBXGroup;
 			children = (
-				12D8BFD22DF3358A00FAB234 /* Session+CoreDataClass.swift */,
-				12D8BFD32DF3358A00FAB234 /* Session+CoreDataProperties.swift */,
 				12D8BF362DF1FB3000FAB234 /* Chip Count */,
 				12D8BF472DF1FB4000FAB234 /* Chip CountTests */,
 				12D8BF512DF1FB4000FAB234 /* Chip CountUITests */,
@@ -245,8 +249,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				12D8BFD42DF3358A00FAB234 /* Session+CoreDataClass.swift in Sources */,
-				12D8BFD52DF3358A00FAB234 /* Session+CoreDataProperties.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -404,12 +406,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Chip Count/Preview Content\"";
 				DEVELOPMENT_TEAM = D38A3745A6;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "$(SRCROOT)/Chip Count/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Chip Count";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -432,12 +439,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Chip Count/Preview Content\"";
 				DEVELOPMENT_TEAM = D38A3745A6;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "$(SRCROOT)/Chip Count/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Chip Count";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
