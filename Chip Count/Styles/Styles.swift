@@ -23,7 +23,7 @@ struct PrimaryTextFieldStyle: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
             .padding()
-            .frame(width: 250)
+            .frame(width: 275)
             .background(Color.black)
             .foregroundColor(.white)
             .cornerRadius(10)

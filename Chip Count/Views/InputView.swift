@@ -61,7 +61,11 @@ struct InputView: View {
                         
                         DatePicker(" ", selection: $date, in: ...Date(), displayedComponents: [.date])
                             .datePickerStyle(.wheel)
+                            .colorScheme(.dark)
+                            //.labelsHidden()
                             .frame(width: 300, height: 100)
+                            //.colorMultiply(.black)
+                            //.background(Color.white)
                             .cornerRadius(10)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
@@ -221,7 +225,10 @@ struct DurationPicker: View {
                 }
             }
             .pickerStyle(WheelPickerStyle())
+            .colorScheme(.dark)
+            //.labelsHidden()
             .frame(width: 80)
+            //.colorMultiply(.black)
             
             Text(":")
                 .modifier(LargeTextStyle(color: .white))
@@ -233,9 +240,13 @@ struct DurationPicker: View {
                 }
             }
             .pickerStyle(WheelPickerStyle())
+            .colorScheme(.dark)
+            //.labelsHidden()
             .frame(width: 80)
+            //.colorMultiply(.black)
         }
         .frame(width: 300, height: 100)
+        //.background(Color.white)
         .cornerRadius(10)
     }
     

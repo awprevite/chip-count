@@ -69,17 +69,30 @@ struct HistoryView: View {
                         .background(Color.white)
                         .padding(.vertical, 8)
                     
-                    Spacer()
-                    
-                    GraphView(sessions: sessions)
-                    
-                    Spacer()
-                    
-                    TableView(showAlert: $showAlert, sessionToDelete: $sessionToDelete, sessions: sessions, viewContext: viewContext)
-                        .padding()
-                    
-                    Spacer()
-                    
+                    if sessions.count == 0 {
+                        
+                        Spacer()
+                        
+                        Text("Enter a session from the New Session screen to view your history")
+                            .modifier(SmallTextStyle(color: .white))
+                            .multilineTextAlignment(.center)
+                            .padding()
+                        
+                        Spacer()
+                        
+                    } else {
+                        
+                        Spacer()
+                        
+                        GraphView(sessions: sessions)
+                        
+                        Spacer()
+                        
+                        TableView(showAlert: $showAlert, sessionToDelete: $sessionToDelete, sessions: sessions, viewContext: viewContext)
+                            .padding()
+                        
+                        Spacer()
+                    }
                 }
             }
         }
