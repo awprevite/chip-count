@@ -5,6 +5,8 @@
 //  Created by Anthony Previte on 6/16/25.
 //
 
+// Holds latest session and the cumulative totals from all sessions incuding that one
+
 import Foundation
 import CoreData
 
