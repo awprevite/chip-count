@@ -5,46 +5,14 @@
 //  Created by Anthony Previte on 6/5/25.
 //
 
+import CoreData
 import SwiftUI
 import Charts
-import CoreData
-
-// Holds all info of a session
-struct SessionData: Identifiable {
-    let id: NSManagedObjectID
-    let date: Date
-    let buyIn: Double
-    let winnings: Double
-    let duration: Int16
-}
-
-// Holds a single session and the cumulative profit of multiple sessions
-struct SessionWithTotal: Identifiable {
-    let id = UUID()
-    let session: SessionData
-    let runningTotal: Double
-}
 
 struct HistoryView: View {
     
     @Environment(\.managedObjectContext) private var viewContext
-    
-    @FetchRequest(
-        entity: Session.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Session.date, ascending: true)]
-    ) private var sessionsFetched: FetchedResults<Session>
-    
-    var sessions: [SessionData] {
-        sessionsFetched.map { coreSession in
-            SessionData(
-                id: coreSession.objectID,
-                date: coreSession.date ?? Date(),
-                buyIn: coreSession.buyIn,
-                winnings: coreSession.winnings,
-                duration: coreSession.duration
-            )
-        }
-    }
+    @StateObject private var viewModel = HistoryViewModel()
     
     @State private var showAlert = false
     @State private var sessionToDelete: SessionData? = nil
@@ -69,7 +37,7 @@ struct HistoryView: View {
                         .background(Color.white)
                         .padding(.vertical, 8)
                     
-                    if sessions.count == 0 {
+                    if viewModel.totalSessions == 0 {
                         
                         Spacer()
                         
@@ -84,17 +52,29 @@ struct HistoryView: View {
                         
                         Spacer()
                         
-                        GraphView(sessions: sessions)
+                        GraphView(sessions: viewModel.sessions)
                         
                         Spacer()
                         
-                        TableView(showAlert: $showAlert, sessionToDelete: $sessionToDelete, sessions: sessions, viewContext: viewContext)
+                        TableView(
+                            showAlert: $showAlert,
+                            sessionToDelete: $sessionToDelete,
+                            sessions: viewModel.sessions,
+                            viewContext: viewContext,
+                            onDelete: { session in
+                                viewModel.deleteSession(session: session, in: viewContext)
+                                viewModel.loadSessions(context: viewContext)
+                            }
+                        )
                             .padding()
                         
                         Spacer()
                     }
                 }
             }
+        }
+        .onAppear {
+            viewModel.loadSessions(context: viewContext)
         }
     }
 }
@@ -175,6 +155,7 @@ struct TableView: View {
     
     let sessions: [SessionData]
     let viewContext: NSManagedObjectContext
+    let onDelete: (SessionData) -> Void
     
     let formatter: DateFormatter = {
         let f = DateFormatter()
@@ -235,23 +216,10 @@ struct TableView: View {
         )
         .alert("Delete Session? This cannot be undone", isPresented: $showAlert, presenting: sessionToDelete) { session in
             Button("Delete", role: .destructive) {
-                deleteSession(session)
+                onDelete(session)
             }
             Button("Back", role: .cancel) {}
         } message: { _ in}
-
-    }
-    
-    private func deleteSession(_ session: SessionData) {
-        
-        let object = viewContext.object(with: session.id)
-        viewContext.delete(object)
-        
-        do {
-            try viewContext.save()
-        } catch {
-            //print("Failed to delete session")
-        }
     }
 }
 

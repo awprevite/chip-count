@@ -7,46 +7,10 @@
 
 import SwiftUI
 
-// Holds a single session and the cumulative profit and duration of multiple sessions
-// Uses SessionData from HistoryView
-struct SessionWithAllTotals: Identifiable {
-    let id = UUID()
-    let session: SessionData
-    let runningMoney: Double
-    let runningTime: Int16
-}
-
 struct ContentView: View {
     
     @Environment(\.managedObjectContext) private var viewContext
-    
-    @FetchRequest(
-        entity: Session.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Session.date, ascending: true)]
-    ) private var sessionsFetched: FetchedResults<Session>
-    
-    var sessions: [SessionData] {
-        sessionsFetched.map { coreSession in
-            SessionData(
-                id: coreSession.objectID,
-                date: coreSession.date ?? Date(),
-                buyIn: coreSession.buyIn,
-                winnings: coreSession.winnings,
-                duration: coreSession.duration
-            )
-        }
-    }
-    
-    var cumulativeSessions: [SessionWithAllTotals] {
-        var totalMoney: Double = 0
-        var totalTime: Int16 = 0
-        
-        return sessions.map { session in
-            totalMoney += session.winnings
-            totalTime += session.duration
-            return SessionWithAllTotals(session: session, runningMoney: totalMoney, runningTime: totalTime)
-        }
-    }
+    @StateObject private var viewModel = ContentViewModel()
     
     var body: some View {
         
@@ -66,17 +30,12 @@ struct ContentView: View {
                         Text("Net Profit")
                             .modifier(SmallTextStyle(color: .white))
                         
-                        if let last = cumulativeSessions.last {
-                            Text(String(format: "$%.2f", last.runningMoney))
-                                .modifier(LargeTextStyle(color: last.runningMoney == 0 ? .white : (last.runningMoney > 0 ? .green : .red)))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.3)
-                                .padding()
-                        } else {
-                            Text("$0.00")
-                                .modifier(LargeTextStyle(color: .white))
-                                .padding()
-                        }
+                        Text(String(format: "$%.2f", viewModel.totalProfit))
+                            .modifier(LargeTextStyle(color:
+                                viewModel.totalProfit == 0 ? .white : (viewModel.totalProfit > 0 ? .green : .red)))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.3)
+                            .padding()
                         
                         Divider()
                             .frame(width: 350)
@@ -89,64 +48,31 @@ struct ContentView: View {
                             Text("Total Sessions")
                                 .modifier(SmallTextStyle(color: .white))
                             
-                            Text("\(cumulativeSessions.count)")
+                            Text("\(viewModel.totalSessions)")
                                 .modifier(LargeTextStyle(color: .white))
                             
                             Text("Time Played")
                                 .modifier(SmallTextStyle(color: .white))
                             
-                            if let last = cumulativeSessions.last {
-                                Text(String(format: "%d:%02d", last.runningTime / 60, last.runningTime % 60))
-                                    .modifier(LargeTextStyle(color: .white))
-                            } else {
-                                Text("0:00")
-                                    .modifier(LargeTextStyle(color: .white))
-                            }
+                            Text(String(format: "%d:%02d", viewModel.totalTime / 60, viewModel.totalTime % 60))
+                                .modifier(LargeTextStyle(color: .white))
                             
                             Text("Hourly Rate")
                                 .modifier(SmallTextStyle(color: .white))
                             
-                            if let last = cumulativeSessions.last {
-                                let hours = Double(last.runningTime) / 60.0
-                                let hourlyRate = last.runningMoney / hours
-                                Text(String(format: "$%.2f", hourlyRate))
-                                    .modifier(LargeTextStyle(color: .white))
-                            } else {
-                                Text("$0.00")
-                                    .modifier(LargeTextStyle(color: .white))
-                            }
+                            Text(String(format: "$%.2f", viewModel.hourlyRate))
                             
                             Text("Average Duration")
                                 .modifier(SmallTextStyle(color: .white))
                             
-                            if let last = cumulativeSessions.last {
-                                let count = cumulativeSessions.count
-                                let totalMinutes = Int(last.runningTime)
-                                let averageDurationMinutes = totalMinutes / count
-                                let hours = averageDurationMinutes / 60
-                                let minutes = averageDurationMinutes % 60
-                                
-                                Text(String(format: "%d:%02d", hours, minutes))
-                                    .modifier(LargeTextStyle(color: .white))
-                            } else {
-                                Text("0:00")
-                                    .modifier(LargeTextStyle(color: .white))
-                            }
+                            Text("\(viewModel.averageDuration)")
+                                .modifier(LargeTextStyle(color: .white))
                             
                             Text("Average Profit")
                                 .modifier(SmallTextStyle(color: .white))
                             
-                            if let last = cumulativeSessions.last {
-                                let count = cumulativeSessions.count
-                                let totalWinnings = last.runningMoney
-                                let averageWinnings = totalWinnings / Double(count)
-                                
-                                Text(String(format: "$%.2f", averageWinnings))
-                                    .modifier(LargeTextStyle(color: .white))
-                            } else {
-                                Text("$0.00")
-                                    .modifier(LargeTextStyle(color: .white))
-                            }
+                            Text(String(format: "$%.2f", viewModel.averageProfit))
+                                .modifier(LargeTextStyle(color: .white))
                             
                         }
                         .frame(maxWidth: 325, alignment: .leading)
@@ -175,6 +101,9 @@ struct ContentView: View {
                         
                         Spacer()
                         
+                    }
+                    .onAppear {
+                        viewModel.loadSessions(context: viewContext)
                     }
                 }
             }

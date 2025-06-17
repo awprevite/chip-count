@@ -9,6 +9,7 @@ import SwiftUI
 
 @main
 struct Chip_CountApp: App {
+    
     let persistenceController = PersistenceController.shared
     
     var body: some Scene {

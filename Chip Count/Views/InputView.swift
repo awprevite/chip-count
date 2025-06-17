@@ -18,29 +18,19 @@ struct InputView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
     
-    @State private var date: Date = Date()
-    @State private var buyIn: String = ""
-    @State private var winnings: String = ""
-    @State private var duration: String = ""
+    @StateObject private var viewModel = InputViewModel()
     
     @FocusState private var buyInFocused: Bool
     @FocusState private var endTotalFocused: Bool
-    
-    @State private var showAlert = false
-    @State private var alertMessage = ""
-    
-    @State private var hours = 0
-    @State private var minutes = 0
     
     var body: some View {
             
         ZStack {
             
             Color.black
-                .ignoresSafeArea(.all)
-                .ignoresSafeArea(.keyboard)
+                .ignoresSafeArea()
             
-            ScrollView{
+            ScrollView(.vertical, showsIndicators: true) {
                 
                 VStack{
                     
@@ -59,13 +49,10 @@ struct InputView: View {
                             .modifier(SmallTextStyle(color: .white))
                             .frame(maxWidth: 225, alignment: .leading)
                         
-                        DatePicker(" ", selection: $date, in: ...Date(), displayedComponents: [.date])
+                        DatePicker(" ", selection: $viewModel.date, in: ...Date(), displayedComponents: [.date])
                             .datePickerStyle(.wheel)
                             .colorScheme(.dark)
-                            //.labelsHidden()
                             .frame(width: 300, height: 100)
-                            //.colorMultiply(.black)
-                            //.background(Color.white)
                             .cornerRadius(10)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
@@ -81,12 +68,12 @@ struct InputView: View {
                             Text("$")
                                 .modifier(SmallTextStyle(color: .white))
                             
-                            TextField("", text: $buyIn)
+                            TextField("", text: $viewModel.buyIn)
                                 .keyboardType(.decimalPad)
                                 .focused($buyInFocused)
-                                .onChange(of: buyIn) {
-                                    if buyIn.count > 8 {
-                                        buyIn = String(buyIn.prefix(8))
+                                .onChange(of: viewModel.buyIn) {
+                                    if viewModel.buyIn.count > 8 {
+                                        viewModel.buyIn = String(viewModel.buyIn.prefix(8))
                                     }
                                 }
                                 .textFieldStyle(PrimaryTextFieldStyle())
@@ -104,12 +91,12 @@ struct InputView: View {
                             Text("$")
                                 .modifier(SmallTextStyle(color: .white))
                             
-                            TextField("", text: $winnings)
+                            TextField("", text: $viewModel.winnings)
                                 .keyboardType(.decimalPad)
                                 .focused($endTotalFocused)
-                                .onChange(of: winnings) {
-                                    if winnings.count > 8 {
-                                        winnings = String(winnings.prefix(8))
+                                .onChange(of: viewModel.winnings) {
+                                    if viewModel.winnings.count > 8 {
+                                        viewModel.winnings = String(viewModel.winnings.prefix(8))
                                     }
                                 }
                                 .textFieldStyle(PrimaryTextFieldStyle())
@@ -122,7 +109,7 @@ struct InputView: View {
                             .frame(maxWidth: 225, alignment: .leading)
                             .padding(.top, 20)
                         
-                        DurationPicker(hours: $hours, minutes: $minutes)
+                        DurationPicker(hours: $viewModel.hours, minutes: $viewModel.minutes)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.white, lineWidth:2)
@@ -131,23 +118,14 @@ struct InputView: View {
                         Spacer()
                         
                     }
-                    .toolbar {
-                        if buyInFocused || endTotalFocused {
-                            ToolbarItemGroup(placement: .keyboard) {
-                                Spacer()
-                                Button("Done") {
-                                    buyInFocused = false
-                                    endTotalFocused = false
-                                }
-                            }
-                        }
-                    }
                     
                     Spacer()
                     Spacer()
                     
                     Button("Save"){
-                        saveSession()
+                        viewModel.saveSession(context: viewContext) {
+                            dismiss()
+                        }
                     }
                         .buttonStyle(PrimaryButtonStyle())
                     
@@ -160,52 +138,24 @@ struct InputView: View {
         .onTapGesture {
             hideKeyboard()
         }
-        .alert("Error", isPresented: $showAlert) {
+        .alert("Error", isPresented: $viewModel.showAlert) {
             Button("OK", role: .cancel) { }
         } message: {
-            Text(alertMessage)
+            Text(viewModel.alertMessage)
+        }
+        .toolbar {
+            if buyInFocused || endTotalFocused {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        buyInFocused = false
+                        endTotalFocused = false
+                    }
+                }
+            }
         }
     }
     
-    private func saveSession() {
-        
-        guard let buyInValue = Double(buyIn),
-              let winningsValue = Double(winnings) else {
-            alertMessage = "Please enter valid amounts for Buy In Total and End Total"
-            showAlert = true
-            return
-        }
-        
-        let totalDuration = Int16(hours * 60 + minutes)
-        
-        if totalDuration == 0 {
-            alertMessage = "Please enter a valid Duration time"
-            showAlert = true
-            return
-        }
-        
-        let newSession = Session(context: viewContext)
-        newSession.date = date
-        newSession.buyIn = buyInValue
-        newSession.winnings = winningsValue - buyInValue
-        newSession.duration = totalDuration
-        
-        do {
-            try viewContext.save()
-            
-            buyIn = ""
-            winnings = ""
-            hours = 0
-            minutes = 0
-            
-            dismiss()
-            
-        } catch {
-            alertMessage = "Failed to save sesson: \(error.localizedDescription)"
-            showAlert = true
-        }
-        
-    }
 }
 
 struct DurationPicker: View {
@@ -226,9 +176,7 @@ struct DurationPicker: View {
             }
             .pickerStyle(WheelPickerStyle())
             .colorScheme(.dark)
-            //.labelsHidden()
             .frame(width: 80)
-            //.colorMultiply(.black)
             
             Text(":")
                 .modifier(LargeTextStyle(color: .white))
@@ -241,15 +189,11 @@ struct DurationPicker: View {
             }
             .pickerStyle(WheelPickerStyle())
             .colorScheme(.dark)
-            //.labelsHidden()
             .frame(width: 80)
-            //.colorMultiply(.black)
         }
         .frame(width: 300, height: 100)
-        //.background(Color.white)
         .cornerRadius(10)
     }
-    
 }
 
 #Preview {
