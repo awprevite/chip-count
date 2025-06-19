@@ -39,28 +39,28 @@ class ContentViewModel: ObservableObject {
         return totalProfit / Double(totalSessions)
     }
     
-    func loadSessions(context: NSManagedObjectContext) {
-        
-        let request = Session.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \Session.date, ascending: true)]
-        if let result = try? context.fetch(request) {
-            self.sessions = result.map { coreSession in
-                SessionData(
-                    id: coreSession.objectID,
-                    date: coreSession.date ?? Date(),
-                    buyIn: coreSession.buyIn,
-                    winnings: coreSession.winnings,
-                    duration: coreSession.duration
-                )
-            }
-            
-            var totalMoney: Double = 0
-            var totalTime: Int16 = 0
-            self.cumulativeSessions = sessions.map { session in
-                totalMoney += session.winnings
-                totalTime += session.duration
-                return SessionWithAllTotals(session: session, runningMoney: totalMoney, runningTime: totalTime)
-            }
-        }
-    }
+//    func loadSessions(context: NSManagedObjectContext) {
+//        
+//        let request = Session.fetchRequest()
+//        request.sortDescriptors = [NSSortDescriptor(keyPath: \Session.date, ascending: true)]
+//        if let result = try? context.fetch(request) {
+//            self.sessions = result.map { coreSession in
+//                SessionData(
+//                    id: coreSession.objectID,
+//                    date: coreSession.date ?? Date(),
+//                    buyIn: coreSession.buyIn,
+//                    winnings: coreSession.winnings,
+//                    duration: coreSession.duration
+//                )
+//            }
+//            
+//            var totalMoney: Double = 0
+//            var totalTime: Int16 = 0
+//            self.cumulativeSessions = sessions.map { session in
+//                totalMoney += session.winnings
+//                totalTime += session.duration
+//                return SessionWithAllTotals(session: session, runningMoney: totalMoney, runningTime: totalTime)
+//            }
+//        }
+//    }
 }

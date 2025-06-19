@@ -11,70 +11,19 @@ import Charts
 
 struct HistoryView: View {
     
-    @Environment(\.managedObjectContext) private var viewContext
     @StateObject private var viewModel = HistoryViewModel()
     
-    @State private var showAlert = false
-    @State private var sessionToDelete: SessionData? = nil
+    let sessions: [SessionData]
     
     var body: some View {
         
-        ZStack {
-            
-            Color.black
-                .ignoresSafeArea()
-            
-            ScrollView{
-                
-                VStack{
-                    
-                    Text("History")
-                        .modifier(SmallTextStyle(color: .white))
-                    
-                    Divider()
-                        .frame(width: 350)
-                        .frame(height: 2)
-                        .background(Color.white)
-                        .padding(.vertical, 8)
-                    
-                    if viewModel.totalSessions == 0 {
-                        
-                        Spacer()
-                        
-                        Text("Enter a session from the New Session screen to view your history")
-                            .modifier(SmallTextStyle(color: .white))
-                            .multilineTextAlignment(.center)
-                            .padding()
-                        
-                        Spacer()
-                        
-                    } else {
-                        
-                        Spacer()
-                        
-                        GraphView(sessions: viewModel.sessions)
-                        
-                        Spacer()
-                        
-                        TableView(
-                            showAlert: $showAlert,
-                            sessionToDelete: $sessionToDelete,
-                            sessions: viewModel.sessions,
-                            viewContext: viewContext,
-                            onDelete: { session in
-                                viewModel.deleteSession(session: session, in: viewContext)
-                                viewModel.loadSessions(context: viewContext)
-                            }
-                        )
-                            .padding()
-                        
-                        Spacer()
-                    }
+        List(sessions) { session in
+            NavigationLink(destination: SessionView(session: session)){
+                HStack {
+                    Text(session.name)
+                    Text("\(session.buyIn - session.winnings)")
                 }
             }
-        }
-        .onAppear {
-            viewModel.loadSessions(context: viewContext)
         }
     }
 }
@@ -148,81 +97,81 @@ struct GraphView: View {
     }
 }
 
-struct TableView: View {
-    
-    @Binding var showAlert: Bool
-    @Binding var sessionToDelete: SessionData?
-    
-    let sessions: [SessionData]
-    let viewContext: NSManagedObjectContext
-    let onDelete: (SessionData) -> Void
-    
-    let formatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "MMM d, yyyy"
-        return f
-    }()
-
-    var body: some View {
-        
-        VStack(alignment: .leading) {
-
-            HStack {
-                
-                Text("Date")
-                    .modifier(SmallTextStyle(color: .white))
-                
-                Spacer()
-                Spacer()
-                
-                Text("Net")
-                    .modifier(SmallTextStyle(color: .white))
-                
-                Spacer()
-                
-            }
-            
-            ForEach(sessions) { session in
-                HStack {
-                    Text(formatter.string(from: session.date))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .frame(width: 100, alignment: .leading)
-                    
-                    Spacer()
-
-                    Text(String(format: "$%.2f", session.winnings))
-                        .foregroundColor(session.winnings > 0 ? .green : (session.winnings == 0 ? .white : .red))
-                        .frame(width: 100, alignment: .trailing)
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        sessionToDelete = session
-                        showAlert = true
-                    }) {
-                        Image(systemName: "trash")
-                            .foregroundColor(.red)
-                    }
-
-                }
-                .padding(.vertical, 4)
-            }
-        }
-        .padding()
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.white, lineWidth:2)
-        )
-        .alert("Delete Session? This cannot be undone", isPresented: $showAlert, presenting: sessionToDelete) { session in
-            Button("Delete", role: .destructive) {
-                onDelete(session)
-            }
-            Button("Back", role: .cancel) {}
-        } message: { _ in}
-    }
-}
+//struct TableView: View {
+//    
+//    @Binding var showAlert: Bool
+//    @Binding var sessionToDelete: SessionData?
+//    
+//    let sessions: [SessionData]
+//    let viewContext: NSManagedObjectContext
+//    let onDelete: (SessionData) -> Void
+//    
+//    let formatter: DateFormatter = {
+//        let f = DateFormatter()
+//        f.dateFormat = "MMM d, yyyy"
+//        return f
+//    }()
+//
+//    var body: some View {
+//        
+//        VStack(alignment: .leading) {
+//
+//            HStack {
+//                
+//                Text("Date")
+//                    .modifier(SmallTextStyle(color: .white))
+//                
+//                Spacer()
+//                Spacer()
+//                
+//                Text("Net")
+//                    .modifier(SmallTextStyle(color: .white))
+//                
+//                Spacer()
+//                
+//            }
+//            
+//            ForEach(sessions) { session in
+//                HStack {
+//                    Text(formatter.string(from: session.date))
+//                        .foregroundColor(.white)
+//                        .lineLimit(1)
+//                        .frame(width: 100, alignment: .leading)
+//                    
+//                    Spacer()
+//
+//                    Text(String(format: "$%.2f", session.winnings))
+//                        .foregroundColor(session.winnings > 0 ? .green : (session.winnings == 0 ? .white : .red))
+//                        .frame(width: 100, alignment: .trailing)
+//                    
+//                    Spacer()
+//                    
+//                    Button(action: {
+//                        sessionToDelete = session
+//                        showAlert = true
+//                    }) {
+//                        Image(systemName: "trash")
+//                            .foregroundColor(.red)
+//                    }
+//
+//                }
+//                .padding(.vertical, 4)
+//            }
+//        }
+//        .padding()
+//        .overlay(
+//            RoundedRectangle(cornerRadius: 10)
+//                .stroke(Color.white, lineWidth:2)
+//        )
+//        .alert("Delete Session? This cannot be undone", isPresented: $showAlert, presenting: sessionToDelete) { session in
+//            Button("Delete", role: .destructive) {
+//                onDelete(session)
+//            }
+//            Button("Back", role: .cancel) {}
+//        } message: { _ in}
+//    }
+//}
 
 #Preview {
-    HistoryView()
+    HistoryView(sessions: mockData)
 }

@@ -26,7 +26,8 @@ class HistoryViewModel: ObservableObject {
         if let result = try? context.fetch(request) {
             self.sessions = result.map { coreSession in
                 SessionData(
-                    id: coreSession.objectID,
+                    name: "",
+                    id: UUID(),
                     date: coreSession.date ?? Date(),
                     buyIn: coreSession.buyIn,
                     winnings: coreSession.winnings,
@@ -44,9 +45,9 @@ class HistoryViewModel: ObservableObject {
         }
     }
     
-    func deleteSession(session: SessionData, in context: NSManagedObjectContext) {
-        let object = context.object(with: session.id)
-        context.delete(object)
-        try? context.save()
-    }
+//    func deleteSession(session: SessionData, in context: NSManagedObjectContext) {
+//        let object = context.object(with: session.id)
+//        context.delete(object)
+//        try? context.save()
+//    }
 }
