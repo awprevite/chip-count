@@ -5,6 +5,8 @@
 //  Created by Anthony Previte on 6/5/25.
 //
 
+// Add things like # players, # bad beats, time started, location...
+
 import SwiftUI
 
 extension View {
