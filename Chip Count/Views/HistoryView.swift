@@ -17,14 +17,16 @@ struct HistoryView: View {
     
     var body: some View {
         
-        List(sessions) { session in
-            NavigationLink(destination: SessionView(session: session)){
-                HStack {
-                    Text(session.name)
-                    Text("\(session.buyIn - session.winnings)")
-                }
-            }
-        }
+        Text("Sample")
+        
+//        List(sessions) { session in
+//            NavigationLink(destination: SessionView(session: session)){
+//                HStack {
+//                    Text(session.location)
+//                    Text("\(session.buyIn - session.winnings)")
+//                }
+//            }
+//        }
     }
 }
 
@@ -36,7 +38,7 @@ struct GraphView: View {
         var result: [Double] = []
         for session in sessions {
             let lastTotal = result.last ?? 0.0
-            result.append(lastTotal + session.winnings)
+            result.append(lastTotal + session.profit)
         }
         return result
     }

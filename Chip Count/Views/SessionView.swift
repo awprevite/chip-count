@@ -12,6 +12,7 @@ struct SessionView: View {
     let session: SessionData
     @State var editName: Bool = false
     @State var name = ""
+    let formatter = DateFormatter()
     
     var body: some View {
         
@@ -23,7 +24,7 @@ struct SessionView: View {
                     HStack{
                         Text("Name")
                         Spacer()
-                        Text(session.name)
+                        Text(formatter.string(from: session.date))
                         Spacer()
                         Button("edit"){
                             editName = true

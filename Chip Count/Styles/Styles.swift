@@ -53,3 +53,13 @@ struct SmallTextStyle: ViewModifier {
             .foregroundColor(color)
     }
 }
+
+struct PrimaryDividerStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .frame(width: 350)
+            .frame(height: 2)
+            .background(Color("PrimaryColor"))
+            .padding(.vertical, 8)
+    }
+}

@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-class ContentViewModel: ObservableObject {
+class HomeViewModel: ObservableObject {
     
     init() {}
     
