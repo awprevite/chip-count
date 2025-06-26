@@ -13,20 +13,28 @@ struct HistoryView: View {
     
     @StateObject private var viewModel = HistoryViewModel()
     
-    let sessions: [SessionData]
+    let sessions: [SessionData] = mockData
+    
+        let formatter: DateFormatter = {
+            let f = DateFormatter()
+            f.dateFormat = "MMM d, yyyy"
+            return f
+        }()
     
     var body: some View {
         
-        Text("Sample")
+        //GraphView(sessions: sessions)
         
-//        List(sessions) { session in
-//            NavigationLink(destination: SessionView(session: session)){
-//                HStack {
-//                    Text(session.location)
-//                    Text("\(session.buyIn - session.winnings)")
-//                }
-//            }
-//        }
+        List(sessions.sorted(by: { $0.date > $1.date })) { session in
+            NavigationLink(destination: SessionView(session: session)){
+                HStack {
+                    Text(session.location)
+                    Spacer()
+                    Text(String(format: "%.2f", session.profit))
+                    Text(formatter.string(from: session.date))
+                }
+            }
+        }
     }
 }
 
@@ -68,12 +76,10 @@ struct GraphView: View {
                         x: .value("Date", dates[index - 1]),
                         y: .value("Total", prevValue)
                     )
-                    .foregroundStyle(.white)
                     LineMark(
                         x: .value("Date", date),
                         y: .value("Total", value)
                     )
-                    .foregroundStyle(.white)
                 }
             }
         }
@@ -82,7 +88,6 @@ struct GraphView: View {
                 AxisGridLine()
                 AxisTick()
                 AxisValueLabel()
-                    .foregroundStyle(.white)
             }
         }
         .chartXScale(range: .plotDimension(padding: 10))
@@ -91,7 +96,6 @@ struct GraphView: View {
                 AxisGridLine()
                 AxisTick()
                 AxisValueLabel()
-                    .foregroundStyle(.white)
             }
         }
         .frame(height: 300)
@@ -99,81 +103,6 @@ struct GraphView: View {
     }
 }
 
-//struct TableView: View {
-//    
-//    @Binding var showAlert: Bool
-//    @Binding var sessionToDelete: SessionData?
-//    
-//    let sessions: [SessionData]
-//    let viewContext: NSManagedObjectContext
-//    let onDelete: (SessionData) -> Void
-//    
-//    let formatter: DateFormatter = {
-//        let f = DateFormatter()
-//        f.dateFormat = "MMM d, yyyy"
-//        return f
-//    }()
-//
-//    var body: some View {
-//        
-//        VStack(alignment: .leading) {
-//
-//            HStack {
-//                
-//                Text("Date")
-//                    .modifier(SmallTextStyle(color: .white))
-//                
-//                Spacer()
-//                Spacer()
-//                
-//                Text("Net")
-//                    .modifier(SmallTextStyle(color: .white))
-//                
-//                Spacer()
-//                
-//            }
-//            
-//            ForEach(sessions) { session in
-//                HStack {
-//                    Text(formatter.string(from: session.date))
-//                        .foregroundColor(.white)
-//                        .lineLimit(1)
-//                        .frame(width: 100, alignment: .leading)
-//                    
-//                    Spacer()
-//
-//                    Text(String(format: "$%.2f", session.winnings))
-//                        .foregroundColor(session.winnings > 0 ? .green : (session.winnings == 0 ? .white : .red))
-//                        .frame(width: 100, alignment: .trailing)
-//                    
-//                    Spacer()
-//                    
-//                    Button(action: {
-//                        sessionToDelete = session
-//                        showAlert = true
-//                    }) {
-//                        Image(systemName: "trash")
-//                            .foregroundColor(.red)
-//                    }
-//
-//                }
-//                .padding(.vertical, 4)
-//            }
-//        }
-//        .padding()
-//        .overlay(
-//            RoundedRectangle(cornerRadius: 10)
-//                .stroke(Color.white, lineWidth:2)
-//        )
-//        .alert("Delete Session? This cannot be undone", isPresented: $showAlert, presenting: sessionToDelete) { session in
-//            Button("Delete", role: .destructive) {
-//                onDelete(session)
-//            }
-//            Button("Back", role: .cancel) {}
-//        } message: { _ in}
-//    }
-//}
-
 #Preview {
-    HistoryView(sessions: mockData)
+    HistoryView()
 }

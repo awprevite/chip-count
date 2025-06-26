@@ -21,7 +21,7 @@ struct SessionData: Identifiable {
     let cashOut: Double // was winnings
     let rebuys: Int
     let profit: Double // auto cashOut - buyIn
-    let duration: Int // was Int16 represents total minutes
+    let duration: Int // was Int16 represents total minutes, auto now between start and end time
     let players: Int
     let badBeats: Int
     let mood: Int // 1-5 satisfaction, add help button on each with a description
@@ -51,7 +51,7 @@ let mockData: [SessionData] = [
         id: UUID(),
         date: Date(),
         day: "Friday",
-        location: "Home Game",
+        location: "Home",
         city: "Andover",
         locationType: "Home",
         smallBlind: 1.0,

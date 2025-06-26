@@ -149,7 +149,10 @@ struct InputView: View {
                         help(label: "Notes")
                     })
                 }
-                Section(header: Text("Confirm Changes")) {
+                Section(header: Text("Finish")) {
+                    Button(action: {print("Discard changes")}) {
+                        Text("Discard")
+                    }
                     Button(action: {print("save")}) {
                         Text("Save")
                     }

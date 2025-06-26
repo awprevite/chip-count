@@ -18,7 +18,7 @@ struct ContentView: View {
                     .tabItem(){ Label("Home", systemImage: "house") }
                 InputView()
                     .tabItem { Label("New", systemImage: "plus") }
-                HistoryView(sessions: mockData)
+                HistoryView()
                     .tabItem{ Label("History", systemImage: "list.bullet.below.rectangle") }
                 AnalyticView()
                     .tabItem{ Label("Analytics", systemImage: "chart.bar")}

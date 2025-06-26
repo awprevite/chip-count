@@ -10,39 +10,56 @@ import SwiftUI
 struct SessionView: View {
     
     let session: SessionData
-    @State var editName: Bool = false
-    @State var name = ""
-    let formatter = DateFormatter()
     
     var body: some View {
         
         List{
             Section(header: Text("Info")){
-                
-                if(!editName){
-                    
-                    HStack{
-                        Text("Name")
-                        Spacer()
-                        Text(formatter.string(from: session.date))
-                        Spacer()
-                        Button("edit"){
-                            editName = true
-                        }
-                    }
-                } else {
-                    HStack{
-                        TextField("Name", text: $name)
-                        Spacer()
-                        Button("done"){
-                            editName = false
-                        }
-                    }
-                }
+                ListContent(session: session)
             }
         }
+        Button("Edit Session"){
+            
+        }
+        Spacer()
         Button("Delete Session"){
             
+        }
+    }
+}
+
+struct ListContent: View {
+    
+    let session: SessionData
+    
+    var sessionStrings: [(label: String, value: String)] {
+        var result: [(String, String)] = []
+        let mirror = Mirror(reflecting: session)
+        for child in mirror.children {
+            if let label = child.label {
+                result.append((label, "\(child.value)"))
+            }
+        }
+        return result
+    }
+    
+    var body: some View {
+        ForEach(0..<sessionStrings.count, id: \.self) { i in
+            let pair = sessionStrings[i]
+            ListRow(label: pair.label, content: pair.value)
+        }
+    }
+}
+
+struct ListRow: View {
+    let label: String
+    let content: String
+    
+    var body: some View {
+        HStack {
+            Text(label)
+            Spacer()
+            Text(content)
         }
     }
 }
