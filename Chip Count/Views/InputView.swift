@@ -20,8 +20,8 @@ struct InputView: View {
     @FocusState private var buyInFocused: Bool
     @FocusState private var endTotalFocused: Bool
     
-    @State var endTime: Date = Date()
     @State var startTime: Date = (Calendar.current.date(byAdding: .hour, value: -5, to: Date()) ?? Date())
+    @State var endTime: Date = Date()
     @State var location: String = ""
     @State var city: String = ""
     let locationTypeOptions = ["Home", "Casino", "Online"]

@@ -10,7 +10,11 @@ import SwiftUI
 struct AnalyticView: View {
     
     var body: some View {
-        Text("Charts here and options for selecting by whatever")
+        VStack {
+            LineGraph()
+            Spacer()
+            BarChart()
+        }
     }
 }
 

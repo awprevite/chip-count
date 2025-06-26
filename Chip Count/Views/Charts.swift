@@ -11,7 +11,7 @@ import Charts
 
 let sessions: [SessionData] = mockData
 
-//for ints
+// need to deal with overflow
 struct BarChart: View {
     
     let data: [SessionData] = sessions
@@ -28,6 +28,9 @@ struct BarChart: View {
         case city = "City"
         case locationType = "Location Type"
         case players = "Players"
+        case day = "Day"
+        case month = "Month"
+        case year = "Year"
     }
     
     enum Metric: String, CaseIterable {
@@ -49,6 +52,9 @@ struct BarChart: View {
         case .city: return session.city
         case .locationType: return session.locationType
         case .players: return String(session.players)
+        case .day: return session.day
+        case .month: return session.month
+        case .year: return session.year
         }
     }
     
@@ -105,13 +111,56 @@ struct BarChart: View {
     }
 }
 
-//for doubles
+
 struct LineGraph: View {
-    var body: some View{
-        Text("S")
+    
+    let data: [SessionData] = sessions
+    
+    struct Entry: Identifiable {
+        let id = UUID()
+        let date: Date
+        let cumulativeProfit: Double
+    }
+    
+    var cumulativeEntries: [Entry] {
+        var result: [Entry] = []
+        var total: Double = 0.0
+        
+        for session in data.sorted(by: { $0.startTime < $1.endTime }) {
+            total += session.profit
+            result.append(Entry(date: session.startTime, cumulativeProfit: total))
+        }
+        return result
+    }
+    
+    var body: some View {
+        
+        Chart {
+            ForEach(cumulativeEntries) { entry in
+                LineMark(x: .value("Date", entry.date), y: .value("Profit", entry.cumulativeProfit))
+                PointMark(x: .value("Date", entry.date), y: .value("Profit", entry.cumulativeProfit))
+            }
+        }
+        .chartXAxis {
+            AxisMarks(values: .automatic) { value in
+                AxisGridLine()
+                AxisTick()
+                AxisValueLabel()
+            }
+        }
+        .chartXScale(range: .plotDimension(padding: 10))
+        .chartYAxis {
+            AxisMarks{
+                AxisGridLine()
+                AxisTick()
+                AxisValueLabel()
+            }
+        }
+        .padding()
+
     }
 }
 
 #Preview {
-    BarChart()
+    LineGraph()
 }
