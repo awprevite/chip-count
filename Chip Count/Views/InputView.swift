@@ -51,21 +51,38 @@ struct InputView: View {
         ZStack{
             
             Form {
-                Section(header: Text("General")) {
+                Section(header: HStack {
+                    Text("New / Edit Session")
+                    Spacer()
+                    Button(action: { help(label: "Help") }) {
+                        Image(systemName: "questionmark.circle")
+                    }
+                }) {
+                    
+                }
+                Section(header: Text("Date and Time")) {
                     HStack {
-                        Button(action: { help(label: "Date") }) {
-                            Image(systemName: "questionmark.circle")
-                        }
-                        DatePicker("Start Time", selection: $startTime, in: ...Date(), displayedComponents: [.date, .hourAndMinute])
+                        Text("Start")
+                            .onTapGesture {
+                                help(label: "Start")
+                            }
+                        Spacer()
+                        DatePicker("", selection: $startTime, in: ...Date(), displayedComponents: [.date, .hourAndMinute])
                             .datePickerStyle(.compact)
+                            .labelsHidden()
                     }
                     HStack {
-                        Button(action: { help(label: "Date") }) {
-                            Image(systemName: "questionmark.circle")
-                        }
-                        DatePicker("End Time", selection: $endTime, in: ...Date(), displayedComponents: [.date, .hourAndMinute])
+                        Text("End")
+                            .onTapGesture {
+                                help(label: "End")
+                            }
+                        Spacer()
+                        DatePicker("", selection: $endTime, in: ...Date(), displayedComponents: [.date, .hourAndMinute])
                             .datePickerStyle(.compact)
+                            .labelsHidden()
                     }
+                }
+                Section(header: Text("Location")) {
                     
                     FormRow(label: "Location", text: $location, onHelp: {
                         help(label: "Location")
@@ -75,18 +92,24 @@ struct InputView: View {
                     })
                     
                     HStack {
-                        Button(action: { help(label: "Location Type") }) {
-                            Image(systemName: "questionmark.circle")
-                        }
-                        Picker("Location Type", selection: $locationType) {
+                        Text("Location Type")
+                            .onTapGesture {
+                                help(label: "Location Type")
+                            }
+                        Spacer()
+                        Picker("", selection: $locationType) {
                             ForEach(locationTypeOptions, id: \.self) {option in
                                 Text(option)
                             }
                         }
                         .pickerStyle(.menu)
+                        .labelsHidden()
                     }
                 }
-                Section(header: Text("Blinds")) {
+                Section(header: Text("Game info")) {
+                    FormRow(label: "Players", text: $players, keyboardType: .numberPad, onHelp: {
+                        help(label: "Players")
+                    })
                     FormRow(label: "Small Blind", text: $smallBlind, keyboardType: .decimalPad, onHelp: {
                         help(label: "Small Blind")
                     })
@@ -96,9 +119,6 @@ struct InputView: View {
                 }
                 
                 Section(header: Text("Gameplay")) {
-                    FormRow(label: "Players", text: $players, keyboardType: .numberPad, onHelp: {
-                        help(label: "Players")
-                    })
                     FormRow(label: "Total Buy In", text: $buyIn, keyboardType: .decimalPad, onHelp: {
                         help(label: "Buy In")
                     })
@@ -114,10 +134,10 @@ struct InputView: View {
                 }
                 Section(header: Text("Other")) {
                     HStack {
-                        Button(action: { help(label: "Mood") }) {
-                            Image(systemName: "questionmark.circle")
-                        }
                         Text("Mood")
+                            .onTapGesture {
+                                help(label: "Mood")
+                            }
                         Spacer()
                         MoodStar(starNumber: 1, mood: $mood)
                         MoodStar(starNumber: 2, mood: $mood)
@@ -128,6 +148,11 @@ struct InputView: View {
                     FormRow(label: "Notes", text: $notes, keyboardType: .default, onHelp: {
                         help(label: "Notes")
                     })
+                }
+                Section(header: Text("Confirm Changes")) {
+                    Button(action: {print("save")}) {
+                        Text("Save")
+                    }
                 }
             }
         }
@@ -165,10 +190,10 @@ struct FormRow: View {
     
     var body: some View {
         HStack {
-            Button(action: { onHelp?() }) {
-                Image(systemName: "questionmark.circle")
-            }
             Text(label)
+                .onTapGesture {
+                    onHelp?()
+                }
             Spacer()
             TextField("Enter \(label)", text: $text)
                 .keyboardType(keyboardType)

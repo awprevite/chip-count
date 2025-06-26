@@ -29,6 +29,7 @@ struct SessionData: Identifiable {
 }
 
 let inputDescriptions: [String: String] = [
+    "Help": "For more information on each field, tap the labels on the left.",
     "Date": "The date the session began on.",
     "Location": "The place, building, or venue where the session was held or played from.",
     "City": "The city where the session was held or played from.",
