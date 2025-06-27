@@ -9,4 +9,10 @@ import Foundation
 
 class SessionViewModel: ObservableObject {
     
+    @Published var session: SessionData
+    
+    init(session: SessionData) {
+        self.session = session
+    }
+    
 }

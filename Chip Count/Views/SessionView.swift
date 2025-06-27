@@ -9,13 +9,17 @@ import SwiftUI
 
 struct SessionView: View {
     
-    let session: SessionData
+    @StateObject private var viewModel: SessionViewModel
+    
+    init(session: SessionData) {
+        _viewModel = StateObject(wrappedValue: SessionViewModel(session: session))
+    }
     
     var body: some View {
         
         List{
             Section(header: Text("Info")){
-                ListContent(session: session)
+                ListContent(session: viewModel.session)
             }
         }
         Button("Edit Session"){

@@ -6,15 +6,89 @@
 //
 
 import SwiftUI
+import Charts
 
 struct AnalyticView: View {
     
+    @StateObject private var viewModel = AnalyticViewModel()
+    
     var body: some View {
         VStack {
-            LineGraph()
+            LineGraph(cumulativeEntries: viewModel.cumulativeEntries)
             Spacer()
-            BarChart()
+            BarChart(
+                selectedGroupBy: $viewModel.selectedGroupBy,
+                selectedMetric: $viewModel.selectedMetric,
+                averagedEntries: viewModel.averagedEntries
+            )
         }
+    }
+}
+
+struct BarChart: View {
+    
+    @Binding var selectedGroupBy: AnalyticViewModel.GroupBy
+    @Binding var selectedMetric: AnalyticViewModel.Metric
+    let averagedEntries: [AnalyticViewModel.BarEntry]
+
+    var body: some View {
+        VStack {
+            Picker("Metric", selection: $selectedMetric) {
+                ForEach(AnalyticViewModel.Metric.allCases, id: \.self) { metric in
+                    Text(metric.rawValue)
+                }
+            }
+            .pickerStyle(.segmented)
+            
+            Chart {
+                ForEach(averagedEntries) { entry in
+                    BarMark(
+                        x: .value("Group", entry.groupName),
+                        y: .value("Average", entry.average)
+                    )
+                    .foregroundStyle(by: .value("Metric", entry.metricName))
+                }
+            }
+            .padding()
+            
+            Picker("Group By", selection: $selectedGroupBy) {
+                ForEach(AnalyticViewModel.GroupBy.allCases, id: \.self) { groupBy in
+                    Text(groupBy.rawValue)
+                }
+            }
+            .pickerStyle(.segmented)
+        }
+    }
+}
+
+struct LineGraph: View {
+    
+    let cumulativeEntries: [AnalyticViewModel.LineEntry]
+    
+    var body: some View {
+        
+        Chart {
+            ForEach(cumulativeEntries) { entry in
+                LineMark(x: .value("Date", entry.date), y: .value("Profit", entry.cumulativeProfit))
+                PointMark(x: .value("Date", entry.date), y: .value("Profit", entry.cumulativeProfit))
+            }
+        }
+        .chartXAxis {
+            AxisMarks(values: .automatic) { value in
+                AxisGridLine()
+                AxisTick()
+                AxisValueLabel()
+            }
+        }
+        .chartXScale(range: .plotDimension(padding: 10))
+        .chartYAxis {
+            AxisMarks{
+                AxisGridLine()
+                AxisTick()
+                AxisValueLabel()
+            }
+        }
+        .padding()
     }
 }
 

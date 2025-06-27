@@ -10,44 +10,59 @@ import CoreData
 
 class HistoryViewModel: ObservableObject {
     
-    init() {}
+    @Published var sessions: [SessionData] = []
     
-//    @Published var sessions: [SessionData] = []
-//    @Published var cumulativeSessions: [SessionWithAllTotals] = []
-//    
-//    var totalSessions: Int { cumulativeSessions.count }
-//    var totalProfit: Double { cumulativeSessions.last?.runningMoney ?? 0 }
-//    var totalTime: Int16 { cumulativeSessions.last?.runningTime ?? 0 }
-//    
-//    func loadSessions(context: NSManagedObjectContext) {
-//        
-//        let request = Session.fetchRequest()
-//        request.sortDescriptors = [NSSortDescriptor(keyPath: \Session.date, ascending: true)]
-//        if let result = try? context.fetch(request) {
-//            self.sessions = result.map { coreSession in
-//                SessionData(
-//                    name: "",
-//                    id: UUID(),
-//                    date: coreSession.date ?? Date(),
-//                    buyIn: coreSession.buyIn,
-//                    winnings: coreSession.winnings,
-//                    duration: coreSession.duration
-//                )
-//            }
-//            
-//            var totalMoney: Double = 0
-//            var totalTime: Int16 = 0
-//            self.cumulativeSessions = sessions.map { session in
-//                totalMoney += session.winnings
-//                totalTime += session.duration
-//                return SessionWithAllTotals(session: session, runningMoney: totalMoney, runningTime: totalTime)
-//            }
-//        }
-//    }
+    let formatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "MMM d, yyyy"
+        return f
+    }()
+
+    func loadSessions(context: NSManagedObjectContext) {
+        
+        let request: NSFetchRequest<Session> = Session.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Session.startTime, ascending: true)]
+
+        do {
+            let result = try context.fetch(request)
+            self.sessions = result.map { coreSession in
+                SessionData(
+                    id: coreSession.id ?? UUID(),
+                    startTime: coreSession.startTime ?? Date(),
+                    endTime: coreSession.endTime ?? Date(),
+                    location: coreSession.location ?? "",
+                    city: coreSession.city ?? "",
+                    locationType: coreSession.locationType ?? "",
+                    smallBlind: coreSession.smallBlind,
+                    bigBlind: coreSession.bigBlind,
+                    buyIn: coreSession.buyIn,
+                    cashOut: coreSession.cashOut,
+                    rebuys: Int(coreSession.rebuys),
+                    players: Int(coreSession.players),
+                    badBeats: Int(coreSession.badBeats),
+                    mood: Int(coreSession.mood),
+                    notes: coreSession.notes ?? ""
+                )
+            }
+        } catch {
+            print("Error fetching sessions: \(error)")
+        }
+    }
     
-//    func deleteSession(session: SessionData, in context: NSManagedObjectContext) {
-//        let object = context.object(with: session.id)
-//        context.delete(object)
-//        try? context.save()
-//    }
+    func deleteSession(session: SessionData, in context: NSManagedObjectContext) {
+        
+        let request: NSFetchRequest<Session> = Session.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", session.id as CVarArg)
+
+        do {
+            let results = try context.fetch(request)
+            if let sessionToDelete = results.first {
+                context.delete(sessionToDelete)
+                try context.save()
+                loadSessions(context: context)
+            }
+        } catch {
+            print("Failed to delete session: \(error)")
+        }
+    }
 }

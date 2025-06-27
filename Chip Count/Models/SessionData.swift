@@ -63,7 +63,7 @@ struct SessionData: Identifiable {
         cashOut - buyIn
     }
 
-    var ROI: Double {
+    var roi: Double {
         guard buyIn != 0 else { return 0 }
         return (profit / buyIn) * 100
     }
@@ -84,7 +84,7 @@ let inputDescriptions: [String: String] = [
     "Big Blind": "The value of the big blind during the session.",
     "Buy In": "The total amount of money spent while playing the game, including initial buy-ins, rebuys, and add-ons.",
     "Cash Out": "The amount of money you walked away with at the end of the session.",
-    "ROI": "Return on Investment, calculated as (Profit ÷ Buy-In) × 100.",
+    "roi": "Return on Investment, calculated as (Profit ÷ Buy-In) × 100.",
     "Rebuys": "The number of times you rebought into the game.",
     "Players": "The average number of players who participated in the session at a time.",
     "Bad Beats": "How many times you experienced a 'bad beat' — losing a strong hand to an unlikely outcome.",

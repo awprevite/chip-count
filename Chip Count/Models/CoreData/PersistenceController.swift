@@ -20,6 +20,8 @@ struct PersistenceController {
         container.loadPersistentStores { (description, error) in
             if let error = error {
                 fatalError("Unable to load Core Data store: \(error)")
+            }else {
+                print(" Core Data store loaded: \(description)")
             }
         }
     }

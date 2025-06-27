@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+// enum for focus state and button on keyboard to move on, also done button for closing keyboard
 extension View {
     func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
@@ -15,36 +15,13 @@ extension View {
 
 struct InputView: View {
     
+    @Environment(\.managedObjectContext) private var context
+    @Environment(\.dismiss) var dismiss
+    
     @StateObject private var viewModel = InputViewModel()
     
     @FocusState private var buyInFocused: Bool
     @FocusState private var endTotalFocused: Bool
-    
-    @State var startTime: Date = (Calendar.current.date(byAdding: .hour, value: -5, to: Date()) ?? Date())
-    @State var endTime: Date = Date()
-    @State var location: String = ""
-    @State var city: String = ""
-    let locationTypeOptions = ["Home", "Casino", "Online"]
-    @State var locationType: String = "Home"
-    @State var smallBlind: String = ""
-    @State var bigBlind: String = ""
-    @State var buyIn: String = ""
-    @State var cashOut: String = ""
-    @State var rebuys: String = ""
-    @State var players: String = ""
-    @State var badBeats: String = ""
-    @State var mood: Int = 3
-    @State var notes: String = ""
-    
-    @State private var showHelp: Bool = false
-    @State private var helpLabel: String? = nil
-    @State private var helpDescription: String = ""
-    
-    func help(label: String) {
-        helpLabel = label
-        helpDescription = inputDescriptions[label] ?? ""
-        showHelp = true
-    }
     
     var body: some View {
         
@@ -54,7 +31,7 @@ struct InputView: View {
                 Section(header: HStack {
                     Text("New / Edit Session")
                     Spacer()
-                    Button(action: { help(label: "Help") }) {
+                    Button(action: { viewModel.help(label: "Help") }) {
                         Image(systemName: "questionmark.circle")
                     }
                 }) {
@@ -64,41 +41,41 @@ struct InputView: View {
                     HStack {
                         Text("Start")
                             .onTapGesture {
-                                help(label: "Start")
+                                viewModel.help(label: "Start")
                             }
                         Spacer()
-                        DatePicker("", selection: $startTime, in: ...Date(), displayedComponents: [.date, .hourAndMinute])
+                        DatePicker("", selection: $viewModel.startTime, in: ...Date(), displayedComponents: [.date, .hourAndMinute])
                             .datePickerStyle(.compact)
                             .labelsHidden()
                     }
                     HStack {
                         Text("End")
                             .onTapGesture {
-                                help(label: "End")
+                                viewModel.help(label: "End")
                             }
                         Spacer()
-                        DatePicker("", selection: $endTime, in: ...Date(), displayedComponents: [.date, .hourAndMinute])
+                        DatePicker("", selection: $viewModel.endTime, in: ...Date(), displayedComponents: [.date, .hourAndMinute])
                             .datePickerStyle(.compact)
                             .labelsHidden()
                     }
                 }
                 Section(header: Text("Location")) {
                     
-                    FormRow(label: "Location", text: $location, onHelp: {
-                        help(label: "Location")
+                    FormRow(label: "Location", text: $viewModel.location, onHelp: {
+                        viewModel.help(label: "Location")
                     })
-                    FormRow(label: "City", text: $city, onHelp: {
-                        help(label: "City")
+                    FormRow(label: "City", text: $viewModel.city, onHelp: {
+                        viewModel.help(label: "City")
                     })
                     
                     HStack {
                         Text("Location Type")
                             .onTapGesture {
-                                help(label: "Location Type")
+                                viewModel.help(label: "Location Type")
                             }
                         Spacer()
-                        Picker("", selection: $locationType) {
-                            ForEach(locationTypeOptions, id: \.self) {option in
+                        Picker("", selection: $viewModel.locationType) {
+                            ForEach(viewModel.locationTypeOptions, id: \.self) {option in
                                 Text(option)
                             }
                         }
@@ -107,62 +84,70 @@ struct InputView: View {
                     }
                 }
                 Section(header: Text("Game info")) {
-                    FormRow(label: "Players", text: $players, keyboardType: .numberPad, onHelp: {
-                        help(label: "Players")
+                    FormRow(label: "Players", text: $viewModel.players, keyboardType: .numberPad, onHelp: {
+                        viewModel.help(label: "Players")
                     })
-                    FormRow(label: "Small Blind", text: $smallBlind, keyboardType: .decimalPad, onHelp: {
-                        help(label: "Small Blind")
+                    FormRow(label: "Small Blind", text: $viewModel.smallBlind, keyboardType: .decimalPad, onHelp: {
+                        viewModel.help(label: "Small Blind")
                     })
-                    FormRow(label: "Big Blind", text: $bigBlind, keyboardType: .decimalPad, onHelp: {
-                        help(label: "Big Blind")
+                    FormRow(label: "Big Blind", text: $viewModel.bigBlind, keyboardType: .decimalPad, onHelp: {
+                        viewModel.help(label: "Big Blind")
                     })
                 }
                 
                 Section(header: Text("Gameplay")) {
-                    FormRow(label: "Total Buy In", text: $buyIn, keyboardType: .decimalPad, onHelp: {
-                        help(label: "Buy In")
+                    FormRow(label: "Total Buy In", text: $viewModel.buyIn, keyboardType: .decimalPad, onHelp: {
+                        viewModel.help(label: "Buy In")
                     })
-                    FormRow(label: "Cash Out", text: $cashOut, keyboardType: .decimalPad, onHelp: {
-                        help(label: "Cash Out")
+                    FormRow(label: "Cash Out", text: $viewModel.cashOut, keyboardType: .decimalPad, onHelp: {
+                        viewModel.help(label: "Cash Out")
                     })
-                    FormRow(label: "Rebuys", text: $rebuys, keyboardType: .numberPad, onHelp: {
-                        help(label: "Rebuys")
+                    FormRow(label: "Rebuys", text: $viewModel.rebuys, keyboardType: .numberPad, onHelp: {
+                        viewModel.help(label: "Rebuys")
                     })
-                    FormRow(label: "Bad Beats", text: $badBeats, keyboardType: .numberPad, onHelp: {
-                        help(label: "Bad Beats")
+                    FormRow(label: "Bad Beats", text: $viewModel.badBeats, keyboardType: .numberPad, onHelp: {
+                        viewModel.help(label: "Bad Beats")
                     })
                 }
                 Section(header: Text("Other")) {
                     HStack {
                         Text("Mood")
                             .onTapGesture {
-                                help(label: "Mood")
+                                viewModel.help(label: "Mood")
                             }
                         Spacer()
-                        MoodStar(starNumber: 1, mood: $mood)
-                        MoodStar(starNumber: 2, mood: $mood)
-                        MoodStar(starNumber: 3, mood: $mood)
-                        MoodStar(starNumber: 4, mood: $mood)
-                        MoodStar(starNumber: 5, mood: $mood)
+                        MoodStar(starNumber: 1, mood: $viewModel.mood)
+                        MoodStar(starNumber: 2, mood: $viewModel.mood)
+                        MoodStar(starNumber: 3, mood: $viewModel.mood)
+                        MoodStar(starNumber: 4, mood: $viewModel.mood)
+                        MoodStar(starNumber: 5, mood: $viewModel.mood)
                     }
-                    FormRow(label: "Notes", text: $notes, keyboardType: .default, onHelp: {
-                        help(label: "Notes")
+                    FormRow(label: "Notes", text: $viewModel.notes, keyboardType: .default, onHelp: {
+                        viewModel.help(label: "Notes")
                     })
                 }
                 Section(header: Text("Finish")) {
-                    Button(action: {print("Discard changes")}) {
+                    Button(action: {
+                        viewModel.reset()
+                    }) {
                         Text("Discard")
                     }
-                    Button(action: {print("save")}) {
+                    Button(action: {
+                        viewModel.saveSession(context: context){
+                            dismiss()
+                        }
+                    }) {
                         Text("Save")
                     }
                 }
             }
         }
-        .alert(isPresented: $showHelp) {
-            Alert(title: Text(helpLabel ?? ""), message: Text(helpDescription), dismissButton: .default(Text("OK")))
+        .alert(isPresented: $viewModel.showHelp) {
+            Alert(title: Text(viewModel.helpLabel ?? ""), message: Text(viewModel.helpDescription), dismissButton: .default(Text("OK")))
         }
-        
+        .alert(isPresented: $viewModel.showError) {
+            Alert(title: Text("Error"), message: Text(viewModel.errorMessage), dismissButton: .default(Text("OK")))
+        }
     }
 }
 
