@@ -99,4 +99,21 @@ class AnalyticViewModel: ObservableObject {
         case .mood: return Double(session.mood)
         }
     }
+    
+    
+//    //HeatMap calendar stuff here
+//    @Published var selectedYear: Int
+//    @Published var selectedMonth: Int
+//    @Published var dayProfits: [Date: Double] = [:]
+//    
+//    func color(for value: Double) -> Color {
+//        switch value {
+//        case 0: return Color.gray.opacity(0.1)
+//        case 1..<3: return Color.green.opacity(0.3)
+//        case 3..<6: return Color.green.opacity(0.6)
+//        case 6...: return Color.green
+//        default: return Color.clear
+//        }
+//    }
+
 }

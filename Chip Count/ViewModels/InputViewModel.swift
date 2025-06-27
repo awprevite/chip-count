@@ -26,13 +26,15 @@ class InputViewModel: ObservableObject {
     @Published var mood: Int = 3
     @Published var notes: String = ""
     
-    @Published var errorMessage: String = ""
-    @Published var showError: Bool = false
-    
     @Published var showHelp: Bool = false
     @Published var helpLabel: String? = nil
     @Published var helpDescription: String = ""
     
+    func discard() {
+        helpLabel = "Discard"
+        helpDescription = "Are you sure you want to discard your changes?"
+        showHelp = true
+    }
     func help(label: String) {
         helpLabel = label
         helpDescription = inputDescriptions[label] ?? ""
@@ -41,21 +43,24 @@ class InputViewModel: ObservableObject {
     
     func validateInputs() -> Bool {
         guard endTime > startTime else {
-            errorMessage = "Please enter an End Time and a Start Time that is before the End Time."
-            showError = true
+            helpLabel = "Error"
+            helpDescription = inputDescriptions["Time Error"] ?? ""
+            showHelp = true
             return false
         }
         
         let maxDuration: TimeInterval = 48 * 60 * 60
         if endTime.timeIntervalSince(startTime) > maxDuration {
-            errorMessage = "Session duration cannot exceed 48 hours."
-            showError = true
+            helpLabel = "Error"
+            helpDescription = inputDescriptions["Long Time Error"] ?? ""
+            showHelp = true
             return false
         }
         
         guard Double(buyIn) != nil, Double(cashOut) != nil else {
-            errorMessage = "Please enter valid amounts for Buy In and Cash Out."
-            showError = true
+            helpLabel = "Error"
+            helpDescription = inputDescriptions["Money Error"] ?? ""
+            showHelp = true
             return false
         }
         return true
@@ -108,8 +113,9 @@ class InputViewModel: ObservableObject {
             dismiss()
             
         } catch {
-            errorMessage = "Failed to save sesson: \(error.localizedDescription)"
-            showError = true
+            helpLabel = "Error"
+            helpDescription = "Failed to save sesson: \(error.localizedDescription)"
+            showHelp = true
         }
     }
     
@@ -129,8 +135,6 @@ class InputViewModel: ObservableObject {
         mood = 3
         notes = ""
 
-        errorMessage = ""
-        showError = false
         showHelp = false
         helpLabel = nil
         helpDescription = ""

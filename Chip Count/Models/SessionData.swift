@@ -89,7 +89,11 @@ let inputDescriptions: [String: String] = [
     "Players": "The average number of players who participated in the session at a time.",
     "Bad Beats": "How many times you experienced a 'bad beat' — losing a strong hand to an unlikely outcome.",
     "Mood": "Your general feeling about the session on a scale of 1 (worst) to 5 (best).",
-    "Notes": "Any extra details or thoughts you’d like to remember about the session."
+    "Notes": "Any extra details or thoughts you’d like to remember about the session.",
+    
+    "Time Error": "Please enter an End Time and a Start Time that is before the End Time.",
+    "Long Time Error": "Session duration cannot exceed 48 hours.",
+    "Money Error": "Please enter valid amounts for Buy In and Cash Out."
 ]
 
 let mockData: [SessionData] = {

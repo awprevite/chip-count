@@ -92,6 +92,19 @@ struct LineGraph: View {
     }
 }
 
+struct HeatCalendar: View {
+    
+    @ObservedObject var viewModel: AnalyticViewModel
+    
+    let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 7)
+    
+    
+    var body: some View {
+        Text("S")
+    }
+    
+}
+
 #Preview {
     AnalyticView()
 }

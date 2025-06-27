@@ -14,5 +14,4 @@ class SessionViewModel: ObservableObject {
     init(session: SessionData) {
         self.session = session
     }
-    
 }

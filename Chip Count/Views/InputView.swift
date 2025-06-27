@@ -6,10 +6,25 @@
 //
 
 import SwiftUI
-// enum for focus state and button on keyboard to move on, also done button for closing keyboard
-extension View {
-    func hideKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+
+enum FormField: String, CaseIterable {
+    
+    case location
+    case city
+    case players
+    case smallBlind
+    case bigBlind
+    case buyIn
+    case cashOut
+    case rebuys
+    case badBeats
+    case notes
+    
+    func next() -> FormField? {
+        let allCases = FormField.allCases
+        guard let currentIndex = allCases.firstIndex(of: self) else { return nil }
+        let nextIndex = allCases.index(after: currentIndex)
+        return nextIndex < allCases.endIndex ? allCases[nextIndex] : nil
     }
 }
 
@@ -20,28 +35,18 @@ struct InputView: View {
     
     @StateObject private var viewModel = InputViewModel()
     
-    @FocusState private var buyInFocused: Bool
-    @FocusState private var endTotalFocused: Bool
+    @FocusState private var focusedField: FormField?
     
     var body: some View {
         
-        ZStack{
+        NavigationView {
             
             Form {
-                Section(header: HStack {
-                    Text("New / Edit Session")
-                    Spacer()
-                    Button(action: { viewModel.help(label: "Help") }) {
-                        Image(systemName: "questionmark.circle")
-                    }
-                }) {
-                    
-                }
                 Section(header: Text("Date and Time")) {
                     HStack {
                         Text("Start")
                             .onTapGesture {
-                                viewModel.help(label: "Start")
+                                viewModel.help(label: "Start Time")
                             }
                         Spacer()
                         DatePicker("", selection: $viewModel.startTime, in: ...Date(), displayedComponents: [.date, .hourAndMinute])
@@ -51,7 +56,7 @@ struct InputView: View {
                     HStack {
                         Text("End")
                             .onTapGesture {
-                                viewModel.help(label: "End")
+                                viewModel.help(label: "End Time")
                             }
                         Spacer()
                         DatePicker("", selection: $viewModel.endTime, in: ...Date(), displayedComponents: [.date, .hourAndMinute])
@@ -60,13 +65,6 @@ struct InputView: View {
                     }
                 }
                 Section(header: Text("Location")) {
-                    
-                    FormRow(label: "Location", text: $viewModel.location, onHelp: {
-                        viewModel.help(label: "Location")
-                    })
-                    FormRow(label: "City", text: $viewModel.city, onHelp: {
-                        viewModel.help(label: "City")
-                    })
                     
                     HStack {
                         Text("Location Type")
@@ -82,32 +80,114 @@ struct InputView: View {
                         .pickerStyle(.menu)
                         .labelsHidden()
                     }
+                    
+                    HStack {
+                        Text("Location")
+                            .onTapGesture {
+                                viewModel.help(label: "Location")
+                            }
+                        Spacer()
+                        TextField("Enter \("Location")", text: $viewModel.location)
+                            .keyboardType(.default)
+                            .multilineTextAlignment(.trailing)
+                            .focused($focusedField, equals: .location)
+                    }
+                    
+                    HStack {
+                        Text("City")
+                            .onTapGesture {
+                                viewModel.help(label: "City")
+                            }
+                        Spacer()
+                        TextField("Enter \("City")", text: $viewModel.city)
+                            .keyboardType(.default)
+                            .multilineTextAlignment(.trailing)
+                            .focused($focusedField, equals: .city)
+                    }
                 }
                 Section(header: Text("Game info")) {
-                    FormRow(label: "Players", text: $viewModel.players, keyboardType: .numberPad, onHelp: {
-                        viewModel.help(label: "Players")
-                    })
-                    FormRow(label: "Small Blind", text: $viewModel.smallBlind, keyboardType: .decimalPad, onHelp: {
-                        viewModel.help(label: "Small Blind")
-                    })
-                    FormRow(label: "Big Blind", text: $viewModel.bigBlind, keyboardType: .decimalPad, onHelp: {
-                        viewModel.help(label: "Big Blind")
-                    })
+                    
+                    HStack {
+                        Text("Players")
+                            .onTapGesture {
+                                viewModel.help(label: "Players")
+                            }
+                        Spacer()
+                        TextField("Enter \("Players")", text: $viewModel.players)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                            .focused($focusedField, equals: .players)
+                    }
+                    
+                    HStack {
+                        Text("Small Blind")
+                            .onTapGesture {
+                                viewModel.help(label: "Small Blind")
+                            }
+                        Spacer()
+                        TextField("Enter \("Small Blind")", text: $viewModel.smallBlind)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .focused($focusedField, equals: .smallBlind)
+                    }
+                    HStack {
+                        Text("Big Blind")
+                            .onTapGesture {
+                                viewModel.help(label: "Big Blind")
+                            }
+                        Spacer()
+                        TextField("Enter \("Big Blind")", text: $viewModel.bigBlind)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .focused($focusedField, equals: .bigBlind)
+                    }
                 }
                 
                 Section(header: Text("Gameplay")) {
-                    FormRow(label: "Total Buy In", text: $viewModel.buyIn, keyboardType: .decimalPad, onHelp: {
-                        viewModel.help(label: "Buy In")
-                    })
-                    FormRow(label: "Cash Out", text: $viewModel.cashOut, keyboardType: .decimalPad, onHelp: {
-                        viewModel.help(label: "Cash Out")
-                    })
-                    FormRow(label: "Rebuys", text: $viewModel.rebuys, keyboardType: .numberPad, onHelp: {
-                        viewModel.help(label: "Rebuys")
-                    })
-                    FormRow(label: "Bad Beats", text: $viewModel.badBeats, keyboardType: .numberPad, onHelp: {
-                        viewModel.help(label: "Bad Beats")
-                    })
+                    HStack {
+                        Text("Total Buy In")
+                            .onTapGesture {
+                                viewModel.help(label: "Buy In")
+                            }
+                        Spacer()
+                        TextField("Enter \("Total Buy In")", text: $viewModel.buyIn)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .focused($focusedField, equals: .buyIn)
+                    }
+                    HStack {
+                        Text("Cash Out")
+                            .onTapGesture {
+                                viewModel.help(label: "Cash Out")
+                            }
+                        Spacer()
+                        TextField("Enter Cash Out", text: $viewModel.cashOut)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .focused($focusedField, equals: .cashOut)
+                    }
+                    HStack {
+                        Text("Rebuys")
+                            .onTapGesture {
+                                viewModel.help(label: "Rebuys")
+                            }
+                        Spacer()
+                        TextField("Enter Rebuys", text: $viewModel.rebuys)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                            .focused($focusedField, equals: .rebuys)
+                    }
+                    HStack {
+                        Text("Bad Beats")
+                            .onTapGesture {
+                                viewModel.help(label: "Bad Beats")
+                            }
+                        Spacer()
+                        TextField("Enter Bad Beats", text: $viewModel.badBeats)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                            .focused($focusedField, equals: .badBeats)
+                    }
                 }
                 Section(header: Text("Other")) {
                     HStack {
@@ -122,13 +202,29 @@ struct InputView: View {
                         MoodStar(starNumber: 4, mood: $viewModel.mood)
                         MoodStar(starNumber: 5, mood: $viewModel.mood)
                     }
-                    FormRow(label: "Notes", text: $viewModel.notes, keyboardType: .default, onHelp: {
-                        viewModel.help(label: "Notes")
-                    })
+                    HStack {
+                        Text("Notes")
+                            .onTapGesture {
+                                viewModel.help(label: "Notes")
+                            }
+                        Spacer()
+                        TextField("Enter Notes", text: $viewModel.notes)
+                            .keyboardType(.default)
+                            .multilineTextAlignment(.trailing)
+                            .focused($focusedField, equals: .notes)
+                    }
                 }
-                Section(header: Text("Finish")) {
+                Section(header:
+                    HStack{
+                        Text("Finish")
+                        Spacer()
+                        Button(action: { viewModel.help(label: "Help") }) {
+                            Image(systemName: "questionmark.circle")
+                        }
+                    }
+                ){
                     Button(action: {
-                        viewModel.reset()
+                        viewModel.discard()
                     }) {
                         Text("Discard")
                     }
@@ -141,12 +237,38 @@ struct InputView: View {
                     }
                 }
             }
+            .navigationTitle("New / Edit Session")
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+
+                    Button("Done") {
+                        focusedField = nil
+                    }
+                    
+                    if focusedField?.next() != nil {
+                        Button("Next") {
+                            if let currentField = focusedField {
+                                focusedField = currentField.next()
+                            }
+                        }
+                    }
+                }
+            }
         }
         .alert(isPresented: $viewModel.showHelp) {
-            Alert(title: Text(viewModel.helpLabel ?? ""), message: Text(viewModel.helpDescription), dismissButton: .default(Text("OK")))
-        }
-        .alert(isPresented: $viewModel.showError) {
-            Alert(title: Text("Error"), message: Text(viewModel.errorMessage), dismissButton: .default(Text("OK")))
+            
+            if viewModel.helpLabel == "Discard" {
+                Alert(
+                    title: Text(viewModel.helpLabel ?? ""),
+                    message: Text(viewModel.helpDescription),
+                    primaryButton: .destructive(Text("Discard")){viewModel.reset()},
+                    secondaryButton: .cancel(Text("Back")))
+            } else {
+                Alert(title: Text(viewModel.helpLabel ?? ""),
+                      message: Text(viewModel.helpDescription),
+                      dismissButton: .default(Text("OK")))
+            }
         }
     }
 }
@@ -167,26 +289,6 @@ struct MoodStar: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
-    }
-}
-
-struct FormRow: View {
-    let label: String
-    @Binding var text: String
-    var keyboardType: UIKeyboardType = .default
-    let onHelp: (() -> Void)?
-    
-    var body: some View {
-        HStack {
-            Text(label)
-                .onTapGesture {
-                    onHelp?()
-                }
-            Spacer()
-            TextField("Enter \(label)", text: $text)
-                .keyboardType(keyboardType)
-                .multilineTextAlignment(.trailing)
-        }
     }
 }
 

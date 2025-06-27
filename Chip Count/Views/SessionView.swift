@@ -34,6 +34,11 @@ struct SessionView: View {
 
 struct ListContent: View {
     
+    
+    // need to add computed properties, might just need to hard code in instead of mirror
+    
+    
+    
     let session: SessionData
     
     var sessionStrings: [(label: String, value: String)] {
