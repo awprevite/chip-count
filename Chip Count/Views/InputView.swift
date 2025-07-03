@@ -31,11 +31,17 @@ enum FormField: String, CaseIterable {
 struct InputView: View {
     
     @Environment(\.managedObjectContext) private var context
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) private var dismiss
     
-    @StateObject private var viewModel = InputViewModel()
+    @StateObject private var viewModel: InputViewModel
     
     @FocusState private var focusedField: FormField?
+    
+    var sessionToEdit: SessionData? = nil
+    
+    init(sessionToEdit: SessionData? = nil) {
+        _viewModel = StateObject(wrappedValue: InputViewModel(sessionToEdit: sessionToEdit))
+    }
     
     var body: some View {
         
@@ -229,15 +235,13 @@ struct InputView: View {
                         Text("Discard")
                     }
                     Button(action: {
-                        viewModel.saveSession(context: context){
-                            dismiss()
-                        }
+                        viewModel.saveSession(context: context)
                     }) {
                         Text("Save")
                     }
                 }
             }
-            .navigationTitle("New / Edit Session")
+            .navigationTitle(viewModel.sessionToEditID == nil ? "New Session" : "Edit Session")
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
@@ -259,13 +263,24 @@ struct InputView: View {
         .alert(isPresented: $viewModel.showHelp) {
             
             if viewModel.helpLabel == "Discard" {
-                Alert(
+                return Alert(
                     title: Text(viewModel.helpLabel ?? ""),
                     message: Text(viewModel.helpDescription),
-                    primaryButton: .destructive(Text("Discard")){viewModel.reset()},
+                    primaryButton: .destructive(Text("Discard")){
+                        viewModel.reset()
+                        dismiss()
+                    },
                     secondaryButton: .cancel(Text("Back")))
+            } else if viewModel.helpLabel == "Success" {
+                return Alert(
+                    title: Text("Success"),
+                    message: Text(viewModel.helpDescription),
+                    dismissButton: .default(Text("OK")) {
+                        dismiss() // <- dismiss on success
+                    }
+                )
             } else {
-                Alert(title: Text(viewModel.helpLabel ?? ""),
+                return Alert(title: Text(viewModel.helpLabel ?? ""),
                       message: Text(viewModel.helpDescription),
                       dismissButton: .default(Text("OK")))
             }

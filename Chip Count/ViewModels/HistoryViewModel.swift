@@ -48,21 +48,4 @@ class HistoryViewModel: ObservableObject {
             print("Error fetching sessions: \(error)")
         }
     }
-    
-    func deleteSession(session: SessionData, in context: NSManagedObjectContext) {
-        
-        let request: NSFetchRequest<Session> = Session.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", session.id as CVarArg)
-
-        do {
-            let results = try context.fetch(request)
-            if let sessionToDelete = results.first {
-                context.delete(sessionToDelete)
-                try context.save()
-                loadSessions(context: context)
-            }
-        } catch {
-            print("Failed to delete session: \(error)")
-        }
-    }
 }

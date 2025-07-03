@@ -30,10 +30,10 @@ struct HistoryView: View {
                     }
                 }
             }
-            .navigationTitle("History")
             .onAppear {
                 viewModel.loadSessions(context: context)
             }
+            .navigationTitle("History")
         }
     }
 }

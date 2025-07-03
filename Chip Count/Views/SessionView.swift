@@ -9,7 +9,12 @@ import SwiftUI
 
 struct SessionView: View {
     
+    @Environment(\.managedObjectContext) private var context
+    @Environment(\.dismiss) private var dismiss
+    
     @StateObject private var viewModel: SessionViewModel
+    
+    @State private var isShowingEdit = false
     
     init(session: SessionData) {
         _viewModel = StateObject(wrappedValue: SessionViewModel(session: session))
@@ -23,11 +28,18 @@ struct SessionView: View {
             }
         }
         Button("Edit Session"){
-            
+            isShowingEdit = true
         }
         Spacer()
         Button("Delete Session"){
-            
+            viewModel.deleteSession(session: viewModel.session, context: context)
+            dismiss()
+        }
+        .sheet(isPresented: $isShowingEdit, onDismiss: {
+            viewModel.reloadSession(context: context)
+        }) {
+            InputView(sessionToEdit: viewModel.session)
+                .presentationDetents([.fraction(0.98)])
         }
     }
 }
@@ -36,8 +48,6 @@ struct ListContent: View {
     
     
     // need to add computed properties, might just need to hard code in instead of mirror
-    
-    
     
     let session: SessionData
     

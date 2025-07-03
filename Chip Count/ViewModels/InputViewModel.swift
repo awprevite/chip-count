@@ -30,6 +30,32 @@ class InputViewModel: ObservableObject {
     @Published var helpLabel: String? = nil
     @Published var helpDescription: String = ""
     
+    @Published var _sessionToEditID: UUID? = nil
+    
+    var sessionToEditID: UUID? {
+        _sessionToEditID
+    }
+    
+    init(sessionToEdit: SessionData? = nil){
+        if let session = sessionToEdit {
+            _sessionToEditID = session.id
+            startTime = session.startTime
+            endTime = session.endTime
+            location = session.location
+            city = session.city
+            locationType = session.locationType
+            smallBlind = String(session.smallBlind)
+            bigBlind = String(session.bigBlind)
+            buyIn = String(session.buyIn)
+            cashOut = String(session.cashOut)
+            rebuys = String(session.rebuys)
+            players = String(session.players)
+            badBeats = String(session.badBeats)
+            mood = session.mood
+            notes = session.notes
+        }
+    }
+    
     func discard() {
         helpLabel = "Discard"
         helpDescription = "Are you sure you want to discard your changes?"
@@ -66,55 +92,57 @@ class InputViewModel: ObservableObject {
         return true
     }
     
-    func saveSession(context: NSManagedObjectContext, dismiss: () -> Void) {
-        
-        print("Save tapped")
-        
+    func saveSession(context: NSManagedObjectContext) {
+            
         guard validateInputs() else { return }
         
-        let newSession: SessionData = SessionData(
-            id: UUID(),
-            startTime: startTime,
-            endTime: endTime,
-            location: location,
-            city: city,
-            locationType: locationType,
-            smallBlind: Double(smallBlind) ?? -1,
-            bigBlind: Double(bigBlind) ?? -1,
-            buyIn: Double(buyIn) ?? -1.0,
-            cashOut: Double(cashOut) ?? -1.0,
-            rebuys: Int(rebuys) ?? -1,
-            players: Int(players) ?? -1,
-            badBeats: Int(badBeats) ?? -1,
-            mood: Int(mood),
-            notes: notes
-        )
-        
-        let newCoreSession = Session(context: context)
-        newCoreSession.startTime = newSession.startTime
-        newCoreSession.endTime = newSession.endTime
-        newCoreSession.location = newSession.location
-        newCoreSession.city = newSession.city
-        newCoreSession.locationType = newSession.locationType
-        newCoreSession.smallBlind = newSession.smallBlind
-        newCoreSession.bigBlind = newSession.bigBlind
-        newCoreSession.buyIn = newSession.buyIn
-        newCoreSession.cashOut = newSession.cashOut
-        newCoreSession.rebuys = Int32(newSession.rebuys)
-        newCoreSession.players = Int32(newSession.players)
-        newCoreSession.badBeats = Int32(newSession.badBeats)
-        newCoreSession.mood = Int32(newSession.mood)
-        newCoreSession.notes = newSession.notes
-        
         do {
+            let coreSession: Session
+            
+            if let id = sessionToEditID {
+                let request: NSFetchRequest<Session> = Session.fetchRequest()
+                request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+                request.fetchLimit = 1
+                
+                if let existing = try context.fetch(request).first {
+                    coreSession = existing
+                } else {
+                    coreSession = Session(context: context)
+                    coreSession.id = id
+                }
+            } else {
+                coreSession = Session(context: context)
+                coreSession.id = UUID()
+            }
+        
+            coreSession.startTime = startTime
+            coreSession.endTime = endTime
+            coreSession.location = location
+            coreSession.city = city
+            coreSession.locationType = locationType
+            coreSession.smallBlind = Double(smallBlind) ?? -1
+            coreSession.bigBlind = Double(bigBlind) ?? -1
+            coreSession.buyIn = Double(buyIn) ?? -1.0
+            coreSession.cashOut = Double(cashOut) ?? -1.0
+            coreSession.rebuys = Int32(rebuys) ?? -1
+            coreSession.players = Int32(players) ?? -1
+            coreSession.badBeats = Int32(badBeats) ?? -1
+            coreSession.mood = Int32(mood)
+            coreSession.notes = notes
             
             try context.save()
-            reset()
-            dismiss()
+            
+            if sessionToEditID == nil {
+                reset()
+            }
+            
+            helpLabel = "Success"
+            helpDescription = sessionToEditID == nil ? "Session saved" : "Session updated"
+            showHelp = true
             
         } catch {
             helpLabel = "Error"
-            helpDescription = "Failed to save sesson: \(error.localizedDescription)"
+            helpDescription = "Failed to save session: \(error.localizedDescription)"
             showHelp = true
         }
     }
