@@ -11,69 +11,70 @@ import SwiftUI
 
 struct HomeView: View {
     
+    @Environment(\.managedObjectContext) private var context
+    
     @StateObject private var viewModel = HomeViewModel()
     
     var body: some View {
         ZStack {
-            Text("Placeholder")
+            Text("Placeholder") 
             
-            //            Color("BackgroundColor")
-            //                .ignoresSafeArea()
-            //            
-            //            VStack {
-            //                
-            //                Text("Net Profit")
-            //                    .modifier(SmallTextStyle(color: Color("PrimaryColor")))
-            //                
-            //                Text(String(format: "$%.2f", viewModel.totalProfit))
-            //                    .modifier(LargeTextStyle(color:
-            //                                                viewModel.totalProfit == 0 ? Color("PrimaryColor") : (viewModel.totalProfit > 0 ? .green : .red)))
-            //                    .lineLimit(1)
-            //                    .minimumScaleFactor(0.3)
-            //                    .padding()
-            //                
-            //                Divider()
-            //                    .modifier(PrimaryDividerStyle())
-            //                
-            //                VStack(alignment: .leading) {
-            //                    
-            //                    Text("Total Sessions")
-            //                        .modifier(SmallTextStyle(color: Color("PrimaryColor")))
-            //                    
-            //                    Text("\(viewModel.totalSessions)")
-            //                        .modifier(LargeTextStyle(color: Color("PrimaryColor")))
-            //                    
-            //                    Text("Time Played")
-            //                        .modifier(SmallTextStyle(color: Color("PrimaryColor")))
-            //                    
-            //                    Text(String(format: "%d:%02d", viewModel.totalTime / 60, viewModel.totalTime % 60))
-            //                        .modifier(LargeTextStyle(color: Color("PrimaryColor")))
-            //                    
-            //                    Text("Hourly Rate")
-            //                        .modifier(SmallTextStyle(color: Color("PrimaryColor")))
-            //                    
-            //                    Text(String(format: "$%.2f", viewModel.hourlyRate))
-            //                        .modifier(LargeTextStyle(color: Color("PrimaryColor")))
-            //                    
-            //                    Text("Average Duration")
-            //                        .modifier(SmallTextStyle(color: Color("PrimaryColor")))
-            //                    
-            //                    Text("\(viewModel.averageDuration)")
-            //                        .modifier(LargeTextStyle(color: Color("PrimaryColor")))
-            //                    
-            //                    Text("Average Profit")
-            //                        .modifier(SmallTextStyle(color: Color("PrimaryColor")))
-            //                    
-            //                    Text(String(format: "$%.2f", viewModel.averageProfit))
-            //                        .modifier(LargeTextStyle(color: Color("PrimaryColor")))
-            //                    
-            //                }
-            //                .frame(maxWidth: 325, alignment: .leading)
-            //                
-            //                Divider()
-            //                    .modifier(PrimaryDividerStyle())
-            //            }
-            //        }
+            Color("BackgroundColor")
+                .ignoresSafeArea()
+            
+            VStack {
+                
+                Text("Net Profit")
+                    .modifier(SmallTextStyle(color: Color("ForegroundColor")))
+                
+                Text(viewModel.totalProfitString)
+                    .modifier(LargeTextStyle(color:
+                                                viewModel.totalProfit == 0 ? Color("ForegroundColor") : (viewModel.totalProfit > 0 ? .green : .red)))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.3)
+                    .padding()
+                
+                Divider()
+                    .modifier(PrimaryDividerStyle())
+                
+                VStack(alignment: .leading) {
+                    
+                    Text("Total Sessions")
+                        .modifier(SmallTextStyle(color: Color("ForegroundColor")))
+                    
+                    Text("\(viewModel.numSessionsString)")
+                        .modifier(LargeTextStyle(color: Color("ForegroundColor")))
+                    
+                    Text("Time Played")
+                        .modifier(SmallTextStyle(color: Color("ForegroundColor")))
+                    
+                    Text("\(viewModel.totalDurationString)")
+                        .modifier(LargeTextStyle(color: Color("ForegroundColor")))
+                    
+                    Text("Average Duration")
+                        .modifier(SmallTextStyle(color: Color("ForegroundColor")))
+                    
+                         Text("\(viewModel.avgDurationString)")
+                        .modifier(LargeTextStyle(color: Color("ForegroundColor")))
+                    
+                    Text("Average Profit")
+                        .modifier(SmallTextStyle(color: Color("ForegroundColor")))
+                    
+                         Text("\(viewModel.hourlyProfitString)")
+                        .modifier(LargeTextStyle(color: Color("ForegroundColor")))
+                    
+                    Text("Hourly Rate")
+                        .modifier(SmallTextStyle(color: Color("ForegroundColor")))
+                    
+                         Text("\(viewModel.avgProfitString)")
+                        .modifier(LargeTextStyle(color: Color("ForegroundColor")))
+                    
+                }
+                .frame(maxWidth: 325, alignment: .leading)
+            }
+        }
+        .onAppear {
+            viewModel.loadSessions(context: context)
         }
     }
 }

@@ -59,7 +59,7 @@ struct PrimaryDividerStyle: ViewModifier {
         content
             .frame(width: 350)
             .frame(height: 2)
-            .background(Color("PrimaryColor"))
+            .background(Color("ForegroundColor"))
             .padding(.vertical, 8)
     }
 }
