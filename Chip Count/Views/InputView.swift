@@ -233,6 +233,7 @@ struct InputView: View {
                         viewModel.discard()
                     }) {
                         Text("Discard")
+                            .foregroundColor(.red)
                     }
                     Button(action: {
                         viewModel.saveSession(context: context)

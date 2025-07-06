@@ -10,17 +10,30 @@ import Charts
 
 struct AnalyticView: View {
     
+    @Environment(\.managedObjectContext) private var context
     @StateObject private var viewModel = AnalyticViewModel()
     
     var body: some View {
-        VStack {
-            LineGraph(cumulativeEntries: viewModel.cumulativeEntries)
-            Spacer()
-            BarChart(
-                selectedGroupBy: $viewModel.selectedGroupBy,
-                selectedMetric: $viewModel.selectedMetric,
-                averagedEntries: viewModel.averagedEntries
-            )
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 40) {
+                    LineGraph(cumulativeEntries: viewModel.cumulativeEntries)
+                        .frame(height: 400)
+                        .padding()
+                    
+                    BarChart(
+                        selectedGroupBy: $viewModel.selectedGroupBy,
+                        selectedMetric: $viewModel.selectedMetric,
+                        averagedEntries: viewModel.averagedEntries
+                    )
+                    .frame(height: 400)
+                    .padding()
+                }
+                .onAppear {
+                    viewModel.loadSessions(context: context)
+                }
+                .navigationTitle("Analytics")
+            }
         }
     }
 }
@@ -33,6 +46,7 @@ struct BarChart: View {
 
     var body: some View {
         VStack {
+            Text("Comparison by Location and Time")
             Picker("Metric", selection: $selectedMetric) {
                 ForEach(AnalyticViewModel.Metric.allCases, id: \.self) { metric in
                     Text(metric.rawValue)
@@ -66,29 +80,31 @@ struct LineGraph: View {
     let cumulativeEntries: [AnalyticViewModel.LineEntry]
     
     var body: some View {
-        
-        Chart {
-            ForEach(cumulativeEntries) { entry in
-                LineMark(x: .value("Date", entry.date), y: .value("Profit", entry.cumulativeProfit))
-                PointMark(x: .value("Date", entry.date), y: .value("Profit", entry.cumulativeProfit))
+        VStack{
+            Text("Profit Over Time")
+            
+            Chart {
+                ForEach(cumulativeEntries) { entry in
+                    LineMark(x: .value("Date", entry.date), y: .value("Profit", entry.cumulativeProfit))
+                    PointMark(x: .value("Date", entry.date), y: .value("Profit", entry.cumulativeProfit))
+                }
+            }
+            .chartXAxis {
+                AxisMarks(values: .automatic) { value in
+                    AxisGridLine()
+                    AxisTick()
+                    AxisValueLabel()
+                }
+            }
+            .chartXScale(range: .plotDimension(padding: 10))
+            .chartYAxis {
+                AxisMarks{
+                    AxisGridLine()
+                    AxisTick()
+                    AxisValueLabel()
+                }
             }
         }
-        .chartXAxis {
-            AxisMarks(values: .automatic) { value in
-                AxisGridLine()
-                AxisTick()
-                AxisValueLabel()
-            }
-        }
-        .chartXScale(range: .plotDimension(padding: 10))
-        .chartYAxis {
-            AxisMarks{
-                AxisGridLine()
-                AxisTick()
-                AxisValueLabel()
-            }
-        }
-        .padding()
     }
 }
 
