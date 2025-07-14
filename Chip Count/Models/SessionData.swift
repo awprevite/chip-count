@@ -28,6 +28,50 @@ extension DateFormatter {
     }()
 }
 
+// Conversion from core to session data
+extension SessionData {
+    init(from core: Session) {
+        self.init(
+            id: core.id ?? UUID(),
+            startTime: core.startTime ?? Date(),
+            endTime: core.endTime ?? Date(),
+            location: core.location ?? "",
+            city: core.city ?? "",
+            locationType: core.locationType ?? "",
+            smallBlind: core.smallBlind,
+            bigBlind: core.bigBlind,
+            buyIn: core.buyIn,
+            cashOut: core.cashOut,
+            rebuys: Int(core.rebuys),
+            players: Int(core.players),
+            badBeats: Int(core.badBeats),
+            mood: Int(core.mood),
+            notes: core.notes ?? ""
+        )
+    }
+}
+
+// Conversion from session data to core
+extension Session {
+    func update(from sessionData: SessionData) {
+        self.id = sessionData.id
+        self.startTime = sessionData.startTime
+        self.endTime = sessionData.endTime
+        self.location = sessionData.location
+        self.city = sessionData.city
+        self.locationType = sessionData.locationType
+        self.smallBlind = sessionData.smallBlind
+        self.bigBlind = sessionData.bigBlind
+        self.buyIn = sessionData.buyIn
+        self.cashOut = sessionData.cashOut
+        self.rebuys = Int32(sessionData.rebuys)
+        self.players = Int32(sessionData.players)
+        self.badBeats = Int32(sessionData.badBeats)
+        self.mood = Int32(sessionData.mood)
+        self.notes = sessionData.notes
+    }
+}
+
 
 struct SessionData: Identifiable {
     let id: UUID

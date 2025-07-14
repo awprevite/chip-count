@@ -1,5 +1,5 @@
 //
-//  DataManager.swift
+//  DataViewModel.swift
 //  Chip Count
 //
 //  Created by Anthony Previte on 7/14/25.
@@ -7,7 +7,7 @@
 
 import CoreData
 
-class DataManager: ObservableObject {
+class DataViewModel: ObservableObject {
     @Published var sessions: [SessionData] = []
     
     func loadSessions(context: NSManagedObjectContext) {
@@ -41,61 +41,56 @@ class DataManager: ObservableObject {
         }
     }
     
-    func saveSession(context: NSManagedObjectContext, session: SessionData) {
+    func saveSession(context: NSManagedObjectContext, session: SessionData, edit: Bool) -> Int {
             
-        // Should only recieve valid inputs, do check elsewhere
+        // Should only receive valid inputs, do check elsewhere
+        
+        do {
         
             let coreSession: Session
-            
-            if let id = sessionToEditID {
+                
+            if edit {
+                
                 let request: NSFetchRequest<Session> = Session.fetchRequest()
-                request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+                request.predicate = NSPredicate(format: "id == %@", session.id as CVarArg)
                 request.fetchLimit = 1
                 
                 if let existing = try context.fetch(request).first {
                     coreSession = existing
                 } else {
                     coreSession = Session(context: context)
-                    coreSession.id = id
+                    coreSession.id = session.id
                 }
-            } else {
+            }
+            else {
                 coreSession = Session(context: context)
                 coreSession.id = UUID()
             }
-        
-            coreSession.startTime = startTime
-            coreSession.endTime = endTime
-            coreSession.location = location
-            coreSession.city = city
-            coreSession.locationType = locationType
-            coreSession.smallBlind = Double(smallBlind) ?? -1
-            coreSession.bigBlind = Double(bigBlind) ?? -1
-            coreSession.buyIn = Double(buyIn) ?? -1.0
-            coreSession.cashOut = Double(cashOut) ?? -1.0
-            coreSession.rebuys = Int32(rebuys) ?? -1
-            coreSession.players = Int32(players) ?? -1
-            coreSession.badBeats = Int32(badBeats) ?? -1
-            coreSession.mood = Int32(mood)
-            coreSession.notes = notes
+            
+            coreSession.startTime = session.startTime
+            coreSession.endTime = session.endTime
+            coreSession.location = session.location
+            coreSession.city = session.city
+            coreSession.locationType = session.locationType
+            coreSession.smallBlind = Double(session.smallBlind)
+            coreSession.bigBlind = Double(session.bigBlind)
+            coreSession.buyIn = Double(session.buyIn)
+            coreSession.cashOut = Double(session.cashOut)
+            coreSession.rebuys = Int32(session.rebuys)
+            coreSession.players = Int32(session.players)
+            coreSession.badBeats = Int32(session.badBeats)
+            coreSession.mood = Int32(session.mood)
+            coreSession.notes = session.notes
             
             try context.save()
-            
-            if sessionToEditID == nil {
-                reset()
-            }
-            
-            helpLabel = "Success"
-            helpDescription = sessionToEditID == nil ? "Session saved" : "Session updated"
-            showHelp = true
+            return 1
             
         } catch {
-            helpLabel = "Error"
-            helpDescription = "Failed to save session: \(error.localizedDescription)"
-            showHelp = true
+            return -1
         }
     }
     
-    func deleteSession(session: SessionData, context: NSManagedObjectContext) {
+    func deleteSession(context: NSManagedObjectContext, session: SessionData) -> Int {
         
         let request: NSFetchRequest<Session> = Session.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", session.id as CVarArg)
@@ -106,39 +101,31 @@ class DataManager: ObservableObject {
                 context.delete(sessionToDelete)
                 try context.save()
                 print("Deleted session with id: \(session.id)")
+                return 1
             }
         } catch {
             print("Failed to delete session: \(error)")
+            return -1
         }
+        
+        return -1
     }
     
-    func reloadSession(context: NSManagedObjectContext) {
+    func reloadSession(context: NSManagedObjectContext, session: SessionData) -> SessionData? {
+        
         let request: NSFetchRequest<Session> = Session.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", session.id as CVarArg)
         request.fetchLimit = 1
 
         do {
             if let updated = try context.fetch(request).first {
-                session = SessionData(
-                    id: updated.id ?? UUID(),
-                    startTime: updated.startTime ?? Date(),
-                    endTime: updated.endTime ?? Date(),
-                    location: updated.location ?? "",
-                    city: updated.city ?? "",
-                    locationType: updated.locationType ?? "",
-                    smallBlind: updated.smallBlind,
-                    bigBlind: updated.bigBlind,
-                    buyIn: updated.buyIn,
-                    cashOut: updated.cashOut,
-                    rebuys: Int(updated.rebuys),
-                    players: Int(updated.players),
-                    badBeats: Int(updated.badBeats),
-                    mood: Int(updated.mood),
-                    notes: updated.notes ?? ""
-                )
+                
+                return SessionData(from: updated)
+                
             }
         } catch {
             print("Failed to reload session: \(error)")
         }
+        return nil
     }
 }
