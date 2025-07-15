@@ -32,11 +32,11 @@ struct SessionView: View {
         }
         Spacer()
         Button("Delete Session"){
-            viewModel.deleteSession(session: viewModel.session, context: context)
+            viewModel.deleteSession(context: context, session: viewModel.session)
             dismiss()
         }
         .sheet(isPresented: $isShowingEdit, onDismiss: {
-            viewModel.reloadSession(context: context)
+            viewModel.fetchSession(context: context)
         }) {
             InputView(sessionToEdit: viewModel.session)
                 .presentationDetents([.fraction(0.98)])

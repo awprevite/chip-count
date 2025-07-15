@@ -242,7 +242,7 @@ struct InputView: View {
                     }
                 }
             }
-            .navigationTitle(viewModel.sessionToEditID == nil ? "New Session" : "Edit Session")
+            .navigationTitle(viewModel.id == nil ? "New Session" : "Edit Session")
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
@@ -265,7 +265,7 @@ struct InputView: View {
             
             if viewModel.helpLabel == "Discard" {
                 return Alert(
-                    title: Text(viewModel.helpLabel ?? ""),
+                    title: Text(viewModel.helpLabel),
                     message: Text(viewModel.helpDescription),
                     primaryButton: .destructive(Text("Discard")){
                         viewModel.reset()
@@ -281,7 +281,7 @@ struct InputView: View {
                     }
                 )
             } else {
-                return Alert(title: Text(viewModel.helpLabel ?? ""),
+                return Alert(title: Text(viewModel.helpLabel),
                       message: Text(viewModel.helpDescription),
                       dismissButton: .default(Text("OK")))
             }

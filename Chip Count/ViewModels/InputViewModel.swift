@@ -29,18 +29,14 @@ class InputViewModel: ObservableObject {
     @Published var notes: String = ""
     
     @Published var showHelp: Bool = false
-    @Published var helpLabel: String? = nil
+    @Published var helpLabel: String = ""
     @Published var helpDescription: String = ""
     
-    @Published var _id: UUID? = nil
-    
-    var id: UUID? {
-        _id
-    }
+    @Published var id: UUID? = nil
     
     init(sessionToEdit: SessionData? = nil){
         if let session = sessionToEdit {
-            _id = session.id
+            id = session.id
             startTime = session.startTime
             endTime = session.endTime
             location = session.location
@@ -109,7 +105,7 @@ class InputViewModel: ObservableObject {
         notes = ""
 
         showHelp = false
-        helpLabel = nil
+        helpLabel = ""
         helpDescription = ""
     }
     
@@ -118,53 +114,46 @@ class InputViewModel: ObservableObject {
         guard validateInputs() else { return }
         
         do {
-            let session = SessionData()
             
-            if let id = sessionToEditID {
-                let request: NSFetchRequest<Session> = Session.fetchRequest()
-                request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-                request.fetchLimit = 1
+            let new = id == nil ? true : false
+            
+            let inputSession = SessionData(
+                id: id ?? UUID(),
+                startTime: startTime,
+                endTime: endTime,
+                location: location,
+                city: city,
+                locationType: locationType,
+                smallBlind: Double(smallBlind) ?? 0,
+                bigBlind: Double(bigBlind) ?? 0,
+                buyIn: Double(buyIn) ?? 0,
+                cashOut: Double(cashOut) ?? 0,
+                rebuys: Int(rebuys) ?? 0,
+                players: Int(players) ?? 0,
+                badBeats: Int(badBeats) ?? 0,
+                mood: mood,
+                notes: notes
+            )
                 
-                if let existing = try context.fetch(request).first {
-                    coreSession = existing
-                } else {
-                    coreSession = Session(context: context)
-                    coreSession.id = id
-                }
+            let success: Bool
+            
+            
+            if(new) {
+                success = dataViewModel.insertSession(context: context, session: inputSession)
             } else {
-                coreSession = Session(context: context)
-                coreSession.id = UUID()
+                success = dataViewModel.updateSession(context: context, session: inputSession)
             }
-        
-            coreSession.startTime = startTime
-            coreSession.endTime = endTime
-            coreSession.location = location
-            coreSession.city = city
-            coreSession.locationType = locationType
-            coreSession.smallBlind = Double(smallBlind) ?? -1
-            coreSession.bigBlind = Double(bigBlind) ?? -1
-            coreSession.buyIn = Double(buyIn) ?? -1.0
-            coreSession.cashOut = Double(cashOut) ?? -1.0
-            coreSession.rebuys = Int32(rebuys) ?? -1
-            coreSession.players = Int32(players) ?? -1
-            coreSession.badBeats = Int32(badBeats) ?? -1
-            coreSession.mood = Int32(mood)
-            coreSession.notes = notes
             
-            try context.save()
-            
-            if id == nil {
+            if success {
                 reset()
+                helpLabel = "Success"
+                helpDescription = id == nil ? "Session saved" : "Session updated"
+                showHelp = true
+            } else {
+                helpLabel = "Error"
+                helpDescription = "Failed to save session"
+                showHelp = true
             }
-            
-            helpLabel = "Success"
-            helpDescription = id == nil ? "Session saved" : "Session updated"
-            showHelp = true
-            
-        } catch {
-            helpLabel = "Error"
-            helpDescription = "Failed to save session: \(error.localizedDescription)"
-            showHelp = true
         }
     }
 }

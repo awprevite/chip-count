@@ -30,7 +30,7 @@ struct AnalyticView: View {
                     .padding()
                 }
                 .onAppear {
-                    viewModel.loadSessions(context: context)
+                    viewModel.fetchAllSessions(context: context)
                 }
                 .navigationTitle("Analytics")
             }
@@ -113,7 +113,6 @@ struct HeatCalendar: View {
     @ObservedObject var viewModel: AnalyticViewModel
     
     let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 7)
-    
     
     var body: some View {
         Text("S")

@@ -52,8 +52,8 @@ class DataViewModel: ObservableObject {
     /// Inserts a session
     /// - Parameter context: The managed object context
     /// - Parameter session: The session to be saved
-    /// - Returns: 1 if successful or -1 if unsuccessful
-    func insertSession(context: NSManagedObjectContext, session: SessionData) -> Int {
+    /// - Returns: true if successful or false if unsuccessful
+    func insertSession(context: NSManagedObjectContext, session: SessionData) -> Bool {
         
         do {
             
@@ -61,18 +61,18 @@ class DataViewModel: ObservableObject {
             newSession.update(from: session)
             
             try context.save()
-            return 1
+            return true
             
         } catch {
-            return -1
+            return false
         }
     }
     
     /// Updates a session
     /// - Parameter context: The managed object context used to fetch sessions
     /// - Parameter session: The session to be saved
-    /// - Returns: 1 if successfully saved or -1 if unsuccessful
-    func updateSession(context: NSManagedObjectContext, session: SessionData) -> Int {
+    /// - Returns: true if successfully saved or false if unsuccessful
+    func updateSession(context: NSManagedObjectContext, session: SessionData) -> Bool {
         
         do {
 
@@ -85,15 +85,15 @@ class DataViewModel: ObservableObject {
                 existingSession.update(from: session)
                 
                 try context.save()
-                return 1
+                return true
                 
             } else {
                 print("Could not find session to update")
-                return -1
+                return false
             }
             
         } catch {
-            return -1
+            return false
         }
     }
     
@@ -101,8 +101,8 @@ class DataViewModel: ObservableObject {
     /// Deletes a session
     /// - Parameter context: The managed object context
     /// - Parameter session: The session to be deleted
-    /// - Returns: 1 if successful or -1 if unsuccessful
-    func deleteSession(context: NSManagedObjectContext, session: SessionData) -> Int {
+    /// - Returns: true if successful or false if unsuccessful
+    func deleteSession(context: NSManagedObjectContext, session: SessionData) -> Bool {
         
         let request: NSFetchRequest<Session> = Session.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", session.id as CVarArg)
@@ -113,13 +113,13 @@ class DataViewModel: ObservableObject {
                 context.delete(sessionToDelete)
                 try context.save()
                 print("Deleted session with id: \(session.id)")
-                return 1
+                return true
             }
         } catch {
             print("Failed to delete session: \(error)")
-            return -1
+            return false
         }
         
-        return -1
+        return false
     }
 }
