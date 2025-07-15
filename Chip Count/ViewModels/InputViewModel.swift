@@ -10,6 +10,8 @@ import Foundation
 
 class InputViewModel: ObservableObject {
     
+    let dataViewModel = DataViewModel()
+    
     @Published var startTime: Date = (Calendar.current.date(byAdding: .hour, value: -3, to: Date()) ?? Date())
     @Published var endTime: Date = Date()
     @Published var location: String = ""
@@ -30,15 +32,15 @@ class InputViewModel: ObservableObject {
     @Published var helpLabel: String? = nil
     @Published var helpDescription: String = ""
     
-    @Published var _sessionToEditID: UUID? = nil
+    @Published var _id: UUID? = nil
     
-    var sessionToEditID: UUID? {
-        _sessionToEditID
+    var id: UUID? {
+        _id
     }
     
     init(sessionToEdit: SessionData? = nil){
         if let session = sessionToEdit {
-            _sessionToEditID = session.id
+            _id = session.id
             startTime = session.startTime
             endTime = session.endTime
             location = session.location
@@ -66,7 +68,6 @@ class InputViewModel: ObservableObject {
         helpDescription = inputDescriptions[label] ?? ""
         showHelp = true
     }
-    
     func validateInputs() -> Bool {
         guard endTime > startTime else {
             helpLabel = "Error"
@@ -91,13 +92,33 @@ class InputViewModel: ObservableObject {
         }
         return true
     }
+    func reset() {
+        startTime = Calendar.current.date(byAdding: .hour, value: -3, to: Date()) ?? Date()
+        endTime = Date()
+        location = ""
+        city = ""
+        locationType = "Home"
+        smallBlind = ""
+        bigBlind = ""
+        buyIn = ""
+        cashOut = ""
+        rebuys = ""
+        players = ""
+        badBeats = ""
+        mood = 3
+        notes = ""
+
+        showHelp = false
+        helpLabel = nil
+        helpDescription = ""
+    }
     
     func saveSession(context: NSManagedObjectContext) {
             
         guard validateInputs() else { return }
         
         do {
-            let coreSession: Session
+            let session = SessionData()
             
             if let id = sessionToEditID {
                 let request: NSFetchRequest<Session> = Session.fetchRequest()
@@ -132,12 +153,12 @@ class InputViewModel: ObservableObject {
             
             try context.save()
             
-            if sessionToEditID == nil {
+            if id == nil {
                 reset()
             }
             
             helpLabel = "Success"
-            helpDescription = sessionToEditID == nil ? "Session saved" : "Session updated"
+            helpDescription = id == nil ? "Session saved" : "Session updated"
             showHelp = true
             
         } catch {
@@ -145,26 +166,5 @@ class InputViewModel: ObservableObject {
             helpDescription = "Failed to save session: \(error.localizedDescription)"
             showHelp = true
         }
-    }
-    
-    func reset() {
-        startTime = Calendar.current.date(byAdding: .hour, value: -3, to: Date()) ?? Date()
-        endTime = Date()
-        location = ""
-        city = ""
-        locationType = "Home"
-        smallBlind = ""
-        bigBlind = ""
-        buyIn = ""
-        cashOut = ""
-        rebuys = ""
-        players = ""
-        badBeats = ""
-        mood = 3
-        notes = ""
-
-        showHelp = false
-        helpLabel = nil
-        helpDescription = ""
     }
 }

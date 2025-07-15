@@ -8,87 +8,22 @@
 import Foundation
 import CoreData
 
-extension DateFormatter {
-    static let weekday: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "EEEE"
-        return f
-    }()
-
-    static let month: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "MMMM"
-        return f
-    }()
-
-    static let year: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy"
-        return f
-    }()
-}
-
-// Conversion from core to session data
-extension SessionData {
-    init(from core: Session) {
-        self.init(
-            id: core.id ?? UUID(),
-            startTime: core.startTime ?? Date(),
-            endTime: core.endTime ?? Date(),
-            location: core.location ?? "",
-            city: core.city ?? "",
-            locationType: core.locationType ?? "",
-            smallBlind: core.smallBlind,
-            bigBlind: core.bigBlind,
-            buyIn: core.buyIn,
-            cashOut: core.cashOut,
-            rebuys: Int(core.rebuys),
-            players: Int(core.players),
-            badBeats: Int(core.badBeats),
-            mood: Int(core.mood),
-            notes: core.notes ?? ""
-        )
-    }
-}
-
-// Conversion from session data to core
-extension Session {
-    func update(from sessionData: SessionData) {
-        self.id = sessionData.id
-        self.startTime = sessionData.startTime
-        self.endTime = sessionData.endTime
-        self.location = sessionData.location
-        self.city = sessionData.city
-        self.locationType = sessionData.locationType
-        self.smallBlind = sessionData.smallBlind
-        self.bigBlind = sessionData.bigBlind
-        self.buyIn = sessionData.buyIn
-        self.cashOut = sessionData.cashOut
-        self.rebuys = Int32(sessionData.rebuys)
-        self.players = Int32(sessionData.players)
-        self.badBeats = Int32(sessionData.badBeats)
-        self.mood = Int32(sessionData.mood)
-        self.notes = sessionData.notes
-    }
-}
-
-
 struct SessionData: Identifiable {
-    let id: UUID
     
+    let id: UUID
     let startTime: Date
     let endTime: Date
     let location: String
     let city: String
-    let locationType: String// Home, Casino, Online
+    let locationType: String
     let smallBlind: Double
     let bigBlind: Double
     let buyIn: Double
-    let cashOut: Double     // was winnings
+    let cashOut: Double
     let rebuys: Int
     let players: Int
     let badBeats: Int
-    let mood: Int           // 1-5 satisfaction, add help button on each with a description
+    let mood: Int
     let notes: String
     
     var day: String {
@@ -115,6 +50,73 @@ struct SessionData: Identifiable {
     var duration: Int {
         Int(endTime.timeIntervalSince(startTime) / 60)
     }
+}
+
+/// Convert from Session to SessionData
+/// - Parameter session: The session being converted
+/// - Returns: The converted `SessionData`
+func toSessionData(from session: Session) -> SessionData {
+    return SessionData(
+        id: session.id ?? UUID(),
+        startTime: session.startTime ?? Date(),
+        endTime: session.endTime ?? Date(),
+        location: session.location ?? "",
+        city: session.city ?? "",
+        locationType: session.locationType ?? "",
+        smallBlind: session.smallBlind,
+        bigBlind: session.bigBlind,
+        buyIn: session.buyIn,
+        cashOut: session.cashOut,
+        rebuys: Int(session.rebuys),
+        players: Int(session.players),
+        badBeats: Int(session.badBeats),
+        mood: Int(session.mood),
+        notes: session.notes ?? ""
+    )
+}
+
+extension Session {
+    
+    /// Updates a stored Session with SessionData
+    /// - Parameter sessionData: The session being converted
+    func update(from sessionData: SessionData) {
+        self.id = sessionData.id
+        self.startTime = sessionData.startTime
+        self.endTime = sessionData.endTime
+        self.location = sessionData.location
+        self.city = sessionData.city
+        self.locationType = sessionData.locationType
+        self.smallBlind = sessionData.smallBlind
+        self.bigBlind = sessionData.bigBlind
+        self.buyIn = sessionData.buyIn
+        self.cashOut = sessionData.cashOut
+        self.rebuys = Int32(sessionData.rebuys)
+        self.players = Int32(sessionData.players)
+        self.badBeats = Int32(sessionData.badBeats)
+        self.mood = Int32(sessionData.mood)
+        self.notes = sessionData.notes
+    }
+    
+}
+
+extension DateFormatter {
+    static let weekday: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "EEEE"
+        return f
+    }()
+
+    static let month: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "MMMM"
+        return f
+    }()
+
+    static let year: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy"
+        return f
+    }()
 }
 
 let inputDescriptions: [String: String] = [

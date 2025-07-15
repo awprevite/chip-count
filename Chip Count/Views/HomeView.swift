@@ -74,7 +74,7 @@ struct HomeView: View {
             }
         }
         .onAppear {
-            viewModel.loadSessions(context: context)
+            viewModel.fetchAllSessions(context: context)
         }
     }
 }

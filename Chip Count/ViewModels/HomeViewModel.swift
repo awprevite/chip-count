@@ -11,6 +11,8 @@ import Combine
 
 class HomeViewModel: ObservableObject {
     
+    let dataViewModel = DataViewModel()
+    
     @Published var sessions: [SessionData] = [] {
         didSet {
             calculateStats()
@@ -74,31 +76,11 @@ class HomeViewModel: ObservableObject {
         }
     }
     
-    func loadSessions(context: NSManagedObjectContext) {
-        
-        let request = Session.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \Session.startTime, ascending: true)]
-        
-        if let result = try? context.fetch(request) {
-            self.sessions = result.map { coreSession in
-                SessionData(
-                    id: coreSession.id ?? UUID(),
-                    startTime: coreSession.startTime ?? Date(),
-                    endTime: coreSession.endTime ?? Date(),
-                    location: coreSession.location ?? "",
-                    city: coreSession.city ?? "",
-                    locationType: coreSession.locationType ?? "Home" ,
-                    smallBlind: coreSession.smallBlind,
-                    bigBlind: coreSession.bigBlind,
-                    buyIn: coreSession.buyIn,
-                    cashOut: coreSession.cashOut,
-                    rebuys: Int(coreSession.rebuys),
-                    players: Int(coreSession.players),
-                    badBeats: Int(coreSession.badBeats),
-                    mood: Int(coreSession.mood),
-                    notes: coreSession.notes ?? ""
-                )
-            }
+    func fetchAllSessions(context: NSManagedObjectContext) {
+        if let allSessions = dataViewModel.fetchAllSessions(context: context){
+            self.sessions = allSessions
+        } else {
+            self.sessions = []
         }
     }
 }

@@ -8,79 +8,57 @@
 import CoreData
 
 class DataViewModel: ObservableObject {
-    @Published var sessions: [SessionData] = []
     
-    func loadSessions(context: NSManagedObjectContext) {
+    /// Fetch all sessions
+    /// - Parameter context: The managed object context used to fetch sessions
+    /// - Returns: An array of `SessionData` representing all saved sessions
+    func fetchAllSessions(context: NSManagedObjectContext) -> [SessionData]? {
         
         let request: NSFetchRequest<Session> = Session.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \Session.startTime, ascending: true)]
 
         do {
-            let result = try context.fetch(request)
-            self.sessions = result.map { coreSession in
-                SessionData(
-                    id: coreSession.id ?? UUID(),
-                    startTime: coreSession.startTime ?? Date(),
-                    endTime: coreSession.endTime ?? Date(),
-                    location: coreSession.location ?? "",
-                    city: coreSession.city ?? "",
-                    locationType: coreSession.locationType ?? "",
-                    smallBlind: coreSession.smallBlind,
-                    bigBlind: coreSession.bigBlind,
-                    buyIn: coreSession.buyIn,
-                    cashOut: coreSession.cashOut,
-                    rebuys: Int(coreSession.rebuys),
-                    players: Int(coreSession.players),
-                    badBeats: Int(coreSession.badBeats),
-                    mood: Int(coreSession.mood),
-                    notes: coreSession.notes ?? ""
-                )
+            let allSessions = try context.fetch(request)
+            return allSessions.map { session in
+                toSessionData(from: session)
             }
         } catch {
             print("Error fetching sessions: \(error)")
+            return nil
         }
     }
     
-    func saveSession(context: NSManagedObjectContext, session: SessionData, edit: Bool) -> Int {
-            
-        // Should only receive valid inputs, do check elsewhere
+    /// Fetch an individual session
+    /// - Parameter context: The managed object context
+    /// - Returns: `SessionData` representing the session
+    func fetchSession(context: NSManagedObjectContext, session: SessionData) -> SessionData? {
+        
+        let request: NSFetchRequest<Session> = Session.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", session.id as CVarArg)
+        request.fetchLimit = 1
+
+        do {
+            if let session = try context.fetch(request).first {
+                
+                return toSessionData(from: session)
+                
+            }
+        } catch {
+            print("Failed to fetch session: \(error)")
+        }
+        return nil
+    }
+    
+    /// Inserts a session
+    /// - Parameter context: The managed object context
+    /// - Parameter session: The session to be saved
+    /// - Returns: 1 if successful or -1 if unsuccessful
+    func insertSession(context: NSManagedObjectContext, session: SessionData) -> Int {
         
         do {
-        
-            let coreSession: Session
-                
-            if edit {
-                
-                let request: NSFetchRequest<Session> = Session.fetchRequest()
-                request.predicate = NSPredicate(format: "id == %@", session.id as CVarArg)
-                request.fetchLimit = 1
-                
-                if let existing = try context.fetch(request).first {
-                    coreSession = existing
-                } else {
-                    coreSession = Session(context: context)
-                    coreSession.id = session.id
-                }
-            }
-            else {
-                coreSession = Session(context: context)
-                coreSession.id = UUID()
-            }
             
-            coreSession.startTime = session.startTime
-            coreSession.endTime = session.endTime
-            coreSession.location = session.location
-            coreSession.city = session.city
-            coreSession.locationType = session.locationType
-            coreSession.smallBlind = Double(session.smallBlind)
-            coreSession.bigBlind = Double(session.bigBlind)
-            coreSession.buyIn = Double(session.buyIn)
-            coreSession.cashOut = Double(session.cashOut)
-            coreSession.rebuys = Int32(session.rebuys)
-            coreSession.players = Int32(session.players)
-            coreSession.badBeats = Int32(session.badBeats)
-            coreSession.mood = Int32(session.mood)
-            coreSession.notes = session.notes
+            let newSession = Session(context: context)
+            newSession.update(from: session)
             
             try context.save()
             return 1
@@ -90,6 +68,40 @@ class DataViewModel: ObservableObject {
         }
     }
     
+    /// Updates a session
+    /// - Parameter context: The managed object context used to fetch sessions
+    /// - Parameter session: The session to be saved
+    /// - Returns: 1 if successfully saved or -1 if unsuccessful
+    func updateSession(context: NSManagedObjectContext, session: SessionData) -> Int {
+        
+        do {
+
+            let request: NSFetchRequest<Session> = Session.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", session.id as CVarArg)
+            request.fetchLimit = 1
+            
+            if let existingSession = try context.fetch(request).first {
+                
+                existingSession.update(from: session)
+                
+                try context.save()
+                return 1
+                
+            } else {
+                print("Could not find session to update")
+                return -1
+            }
+            
+        } catch {
+            return -1
+        }
+    }
+    
+    
+    /// Deletes a session
+    /// - Parameter context: The managed object context
+    /// - Parameter session: The session to be deleted
+    /// - Returns: 1 if successful or -1 if unsuccessful
     func deleteSession(context: NSManagedObjectContext, session: SessionData) -> Int {
         
         let request: NSFetchRequest<Session> = Session.fetchRequest()
@@ -109,23 +121,5 @@ class DataViewModel: ObservableObject {
         }
         
         return -1
-    }
-    
-    func reloadSession(context: NSManagedObjectContext, session: SessionData) -> SessionData? {
-        
-        let request: NSFetchRequest<Session> = Session.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", session.id as CVarArg)
-        request.fetchLimit = 1
-
-        do {
-            if let updated = try context.fetch(request).first {
-                
-                return SessionData(from: updated)
-                
-            }
-        } catch {
-            print("Failed to reload session: \(error)")
-        }
-        return nil
     }
 }
